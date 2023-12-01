@@ -6,42 +6,46 @@ import java.util.*
 
 abstract class BaseSolver {
 
-    fun solve(testOrReal:TestOrReal=TestOrReal.REAL, part: Part = Part.BOTH) {
-        val fileName = if(testOrReal==TestOrReal.TEST) "test-input.txt" else "input.txt"
-        val resourceURL = this::class.java.getResource(fileName)
+    fun solve(inputVariant:INPUT_VARIANT=INPUT_VARIANT.REAL, part: Part = Part.BOTH) {
+        val fileName = if(inputVariant==INPUT_VARIANT.EXAMPLE) "test-input.txt" else "input.txt"
+        val fileName2 = if(inputVariant==INPUT_VARIANT.EXAMPLE) "test-input2.txt" else "input2.txt"
+        var resourceURL = this::class.java.getResource(fileName)
         if (resourceURL == null) {
-            throw Exception("resource $fileName does not exist in folder ${getDay()}")
+            resourceURL = this::class.java.getResource(fileName2)
+            if (resourceURL == null) {
+                throw Exception("input file named $fileName nor $fileName2 exist in folder ${getDay()}")
+            }
         }
         val input = FileUtil.readMultiLineFile(resourceURL)
 
         if (part == Part.PART1 || part == Part.BOTH) {
-            var solveResult = solvePart1(input, testOrReal)
+            var solveResult = solvePart1(input, inputVariant)
             var answer : Any = solveResult
             var context : Map<String, Any>? = null
             if (solveResult is Pair<*, *>) {
                 answer = solveResult.first!!
                 context = solveResult.second as Map<String, Any>?
             }
-            printAnswerDetails(1, answer, context, testOrReal)
+            printAnswerDetails(1, answer, context, inputVariant)
         }
         if (part == Part.PART2 || part == Part.BOTH) {
-            var solveResult = solvePart2(input, testOrReal)
+            var solveResult = solvePart2(input, inputVariant)
             var answer : Any = solveResult
             var context : Map<String, Any>? = null
             if (solveResult is Pair<*, *>) {
                 answer = solveResult.first!!
                 context = solveResult.second as Map<String, Any>?
             }
-            printAnswerDetails(2, answer, context, testOrReal)
+            printAnswerDetails(2, answer, context, inputVariant)
         }
     }
 
-    abstract fun solvePart1(inputLines:List<String>, testOrReal:TestOrReal) : Any
-    abstract fun solvePart2(inputLines:List<String>, testOrReal: TestOrReal) : Any
+    abstract fun solvePart1(inputLines:List<String>, inputVariant:INPUT_VARIANT) : Any
+    abstract fun solvePart2(inputLines:List<String>, inputVariant: INPUT_VARIANT) : Any
 
-    fun printAnswerDetails(part: Int, answer: Any, context: Map<String, Any>?, testOrReal: TestOrReal) {
+    fun printAnswerDetails(part: Int, answer: Any, context: Map<String, Any>?, inputVariant: INPUT_VARIANT) {
         val day =  this::class.java.`package`.name
-        val appendix = if (testOrReal == TestOrReal.TEST) "(!!!TEST!!!)" else ""
+        val appendix = if (inputVariant == INPUT_VARIANT.EXAMPLE) "(!!!TEST!!!)" else ""
 
         if (context != null) {
             System.out.printf(
@@ -64,8 +68,8 @@ abstract class BaseSolver {
         println()
     }
 
-    fun printAnswerDetails(part: Int, answer: Any, testOrReal: TestOrReal) {
-        printAnswerDetails(part, answer, null, testOrReal)
+    fun printAnswerDetails(part: Int, answer: Any, inputVariant: INPUT_VARIANT) {
+        printAnswerDetails(part, answer, null, inputVariant)
     }
 
     // basically return the name of this solver's package (e.g. day01)

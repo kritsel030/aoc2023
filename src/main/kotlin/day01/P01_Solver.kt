@@ -1,20 +1,19 @@
 package day01
 
 import base.BaseSolver
-import base.TestOrReal
+import base.INPUT_VARIANT
 
 fun main(args: Array<String>) {
-    P01_Solver().solve(TestOrReal.REAL)
+    P01_Solver().solve(INPUT_VARIANT.EXAMPLE)
 }
 
 class P01_Solver : BaseSolver() {
 
-    override fun solvePart1(inputLines: List<String>, testOrReal: TestOrReal): Any {
-        //return inputLines.map { determineNumber(it) }.sum()
-        return "skip"
+    override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
+        return inputLines.map { determineNumber(it) }.sum()
     }
 
-    override fun solvePart2(inputLines: List<String>, testOrReal: TestOrReal): Any {
+    override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         return inputLines.map { determineNumber2(it) }.sum()
     }
 
