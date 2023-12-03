@@ -4,7 +4,7 @@ import base.BaseSolver
 import base.INPUT_VARIANT
 
 fun main(args: Array<String>) {
-    P02_Solver().solve(INPUT_VARIANT.EXAMPLE)
+    Pxx_Solver().solve(INPUT_VARIANT.EXAMPLE)
 }
 
 class Pxx_Solver : BaseSolver() {
