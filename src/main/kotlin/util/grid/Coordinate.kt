@@ -23,6 +23,10 @@ open class Coordinate(val rowNo:Int, val colNo:Int) {
 
     fun findNeighbours(includeDiagonalNeighbours:Boolean? = false, distance:Int? = 1) : Map<Direction, Coordinate> {
         val directions = if (includeDiagonalNeighbours == true) Direction.values() else NESW
+        return findNeighbours(directions.toList(), distance)
+    }
+
+    fun findNeighbours(directions:List<Direction>, distance:Int? = 1) : Map<Direction, Coordinate> {
         return directions.map { it to move(it, distance) }.toMap()
     }
 

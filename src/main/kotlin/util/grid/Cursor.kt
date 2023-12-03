@@ -49,6 +49,10 @@ open class Cursor<T>(val grid:Grid2D<T>, var currentCoordinate:Coordinate) {
         return currentCoordinate.findNeighbours(includeDiagonalNeighbours, distance).filter{grid.isValidPosition(it.value)}
     }
 
+    fun getNeighbours(directions:List<Direction>, distance: Int? = 1) : Map<Direction, Coordinate> {
+        return currentCoordinate.findNeighbours(directions, distance).filter{grid.isValidPosition(it.value)}
+    }
+
     override fun toString(): String {
         return "{value=${grid.getValue(currentCoordinate)}, currentCoordinate=$currentCoordinate, pathLength=${path.size}"
     }

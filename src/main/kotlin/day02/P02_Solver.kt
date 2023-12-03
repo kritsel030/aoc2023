@@ -54,6 +54,7 @@ class P02_Solver : BaseSolver() {
         return Pair(id, phaseResults)
     }
 
+    // answer: 78375
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         // parse input
         val games = inputLines.map { parseLine(it) }.toList()
