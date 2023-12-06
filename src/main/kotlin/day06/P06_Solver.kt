@@ -4,18 +4,18 @@ import base.BaseSolver
 import base.INPUT_VARIANT
 
 fun main(args: Array<String>) {
-    P06_Solver().solve(INPUT_VARIANT.EXAMPLE)
+    P06_Solver().solve(INPUT_VARIANT.REAL)
 }
 
 class P06_Solver : BaseSolver() {
 
     // answer: 2269432
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        // example input
-//        val races:List<Pair<Long, Long>> = listOf(Pair(7,9), Pair(15,40), Pair(30,200))
-
-        // real input
-        val races:List<Pair<Long, Long>> = listOf(Pair(49,298), Pair(78,1185), Pair(79,1066), Pair(80,1181))
+        val races:List<Pair<Long, Long>> =
+            if (inputVariant == INPUT_VARIANT.EXAMPLE)
+                listOf(Pair(7,9), Pair(15,40), Pair(30,200))
+            else
+                listOf(Pair(49,298), Pair(78,1185), Pair(79,1066), Pair(80,1181))
 
         val answer = races
             .map { race -> determineWinPossibilitiesCount(race) }
@@ -26,14 +26,12 @@ class P06_Solver : BaseSolver() {
 
     // answer: 35865985
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        // example input
-//        val race:Pair<Long, Long> = Pair(71530,940200)
-
-        // real input
-        val race:Pair<Long, Long> = Pair(49787980, 298118510661181)
-
+        val race: Pair<Long, Long> =
+            if (inputVariant == INPUT_VARIANT.EXAMPLE)
+                Pair(71530,940200)
+            else
+                Pair(49787980, 298118510661181)
         val answer = determineWinPossibilitiesCount(race)
-
         return answer
     }
 
@@ -57,17 +55,5 @@ class P06_Solver : BaseSolver() {
         return (lastWin - firstWin) + 1
     }
 }
-
-/*
-
-Time:      7  15   30
-Distance:  9  40  200
-
-(7-x) * x = 9
-7-x = x/9
-
-7x - x^2 = 9
-
- */
 
 
