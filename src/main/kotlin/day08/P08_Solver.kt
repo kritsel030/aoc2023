@@ -27,6 +27,7 @@ class P08_Solver : BaseSolver() {
         return "dummy"
     }
 
+    // answer: 8906539031197
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         val (instructions, nodeInstructions) = parseInput(inputLines)
 
