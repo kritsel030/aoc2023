@@ -11,7 +11,7 @@ class P07_Solver : BaseSolver() {
 
     // answer: 251136060
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        val hands = inputLines
+        return inputLines
             .map {
                 val elements = it.split(" ")
                 val hand = elements[0].map { CardType[it]!! }
@@ -23,28 +23,28 @@ class P07_Solver : BaseSolver() {
                 .thenBy { it.hand[2].value1 }
                 .thenBy { it.hand[3].value1 }
                 .thenBy { it.hand[4].value1 })
-        hands.forEachIndexed { index, handAndBit -> handAndBit.rank = (index + 1).toLong() }
-
-        return hands.map { it.bid * it.rank }.sum()
+            .mapIndexed { index, hand -> hand.bid * (index+1).toLong() }
+            .sum()
     }
 
     // answer: 249400220
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        val hands = inputLines
+        return inputLines
             .map {
                 val elements = it.split(" ")
                 val hand = elements[0].map { CardType[it]!! }
+                // part 2: replace joker
                 HandAndBid(hand, elements[1].toInt(), determineHandType(hand, true))
             }
             .sortedWith(compareBy<HandAndBid> { it.handType.strength }
+                // part 2: use value2 of each card instead of value1
                 .thenBy { it.hand[0].value2 }
                 .thenBy { it.hand[1].value2 }
                 .thenBy { it.hand[2].value2 }
                 .thenBy { it.hand[3].value2 }
                 .thenBy { it.hand[4].value2 })
-        hands.forEachIndexed { index, handAndBit -> handAndBit.rank = (index + 1).toLong() }
-
-        return hands.map { it.bid * it.rank }.sum()
+            .mapIndexed { index, hand -> hand.bid * (index+1).toLong() }
+            .sum()
     }
 
     fun determineHandType(hand: List<CardType>, replaceJoker:Boolean = false): HandType {
