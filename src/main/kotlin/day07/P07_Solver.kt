@@ -68,44 +68,25 @@ class P07_Solver : BaseSolver() {
             }
         }
 
-//        return when (mappedHand.size) {
-//            1 -> HandType.FIVE_KIND
-//            2 ->
-//                if (mappedHand.filter { it.value == 4 }.count() == 1) {
-//                    HandType.FOUR_KIND
-//                } else {
-//                    HandType.FULL_HOUSE
-//                }
-//
-//            3 ->
-//                if (mappedHand.filter { it.value == 3 }.count() == 1) {
-//                    HandType.THREE_KIND
-//                } else {
-//                    HandType.TWO_PAIR
-//                }
-//
-//            4 -> HandType.ONE_PAIR
-//            else -> HandType.ONE_PAIR
-//        }
+        return when (mappedHand.size) {
+            1 -> HandType.FIVE_KIND
+            2 ->
+                if (mappedHand.filter { it.value == 4 }.count() == 1) {
+                    HandType.FOUR_KIND
+                } else {
+                    HandType.FULL_HOUSE
+                }
 
-        if (mappedHand.size == 1) {
-            return HandType.FIVE_KIND
-        } else if (mappedHand.size == 2) {
-            if (mappedHand.filter { it.value == 4 }.count() == 1) {
-                return HandType.FOUR_KIND
-            } else {
-                return HandType.FULL_HOUSE
-            }
-        } else if (mappedHand.size == 3) {
-            if (mappedHand.filter { it.value == 3 }.count() == 1) {
-                return HandType.THREE_KIND
-            } else {
-                return HandType.TWO_PAIR
-            }
-        } else if (mappedHand.size == 4) {
-            return HandType.ONE_PAIR
+            3 ->
+                if (mappedHand.filter { it.value == 3 }.count() == 1) {
+                    HandType.THREE_KIND
+                } else {
+                    HandType.TWO_PAIR
+                }
+
+            4 -> HandType.ONE_PAIR
+            else -> HandType.HIGH_CARD
         }
-        return HandType.HIGH_CARD
     }
 }
 
