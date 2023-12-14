@@ -1,5 +1,7 @@
 package util.grid
 
+import kotlin.math.absoluteValue
+
 open class Coordinate(val rowNo:Int, val colNo:Int) {
 
     companion object {
@@ -28,6 +30,10 @@ open class Coordinate(val rowNo:Int, val colNo:Int) {
 
     fun findNeighbours(directions:List<Direction>, distance:Int? = 1) : Map<Direction, Coordinate> {
         return directions.map { it to move(it, distance) }.toMap()
+    }
+
+    fun shortestDistance(otherCoordinate:Coordinate) : Int {
+        return (this.rowNo-otherCoordinate.rowNo).absoluteValue + (this.colNo - otherCoordinate.colNo).absoluteValue
     }
 
     override fun toString() : String {

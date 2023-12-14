@@ -16,7 +16,7 @@ open class Cursor<T>(val grid:Grid2D<T>, var currentCoordinate:Coordinate) {
         return clone
     }
 
-    fun canMove(direction:Direction, distance:Int? = 1) : Boolean {
+    open fun canMove(direction:Direction, distance:Int? = 1) : Boolean {
 //        println("Cursor.canMove ${position.rowNo} + ${position.colNo}")
         val newPos = currentCoordinate.move(direction, distance)
         return grid.isValidPosition(newPos.rowNo, newPos.colNo)

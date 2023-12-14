@@ -41,7 +41,8 @@ class P08_Solver : BaseSolver() {
 
         var cycleFoundNodes:MutableMap<String, Pair<Long, Long>> = mutableMapOf()
 
-        while ( currentNodes.values.count{it.endsWith('Z')} != currentNodes.size) {
+//        while ( currentNodes.values.count{it.endsWith('Z')} != currentNodes.size) {
+        while (currentNodes.isNotEmpty()) {
             for (command in instructions) {
                 steps++
                 currentNodes = currentNodes
@@ -71,7 +72,7 @@ class P08_Solver : BaseSolver() {
                             visitedNodes[it.key]!![it.value]!!.forEach { timestamp ->
                                 val zero:Long = 0
                                 if (timestamp != latestTimestamp && (latestTimestamp - timestamp) % instructions.length == zero) {
-                                    println("cycle detected for start node ${it.key}: visited ${it.value} at $timestamp and $latestTimestamp")
+                                    println("cycle detected for start node ${it.key}: visited ${it.value} at step $timestamp and step $latestTimestamp (${instructions.length} instructions)")
                                     cycleFoundNodes[it.key] = Pair(timestamp, timestamp / instructions.length)
                                 }
                             }
