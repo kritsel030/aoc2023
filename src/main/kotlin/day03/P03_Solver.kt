@@ -10,6 +10,10 @@ fun main(args: Array<String>) {
 
 class P03_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "gear ratios"
+    }
+
     // answer: 559667
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val grid = Grid2DFactory.initCharGrid(inputLines)

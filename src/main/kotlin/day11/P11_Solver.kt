@@ -14,6 +14,10 @@ fun main(args: Array<String>) {
 
 class P11_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "cosmic expansion"
+    }
+
     // answer: 9724940
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val grid = Grid2DFactory.initCharGrid(inputLines)

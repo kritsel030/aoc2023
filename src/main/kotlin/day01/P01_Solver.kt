@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
 
 class P01_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "calibration"
+    }
+
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         return inputLines.map { determineNumber(it) }.sum()
     }

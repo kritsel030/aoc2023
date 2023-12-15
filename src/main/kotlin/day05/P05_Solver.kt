@@ -10,6 +10,10 @@ fun main(args: Array<String>) {
 
 class P05_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "seed-to-soil"
+    }
+
     // answer: 662197086
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val almanac = parseInput(inputLines)
@@ -23,22 +27,26 @@ class P05_Solver : BaseSolver() {
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         val almanac = parseInput(inputLines)
 
+        var context:MutableMap<String, Any> = mutableMapOf()
         var locationNumber:Long = -1
         var matchingSeedNumberFound: Boolean = false
         val zero:Long = 0
         while (! matchingSeedNumberFound) {
             locationNumber++
-            if (locationNumber%1000000 == zero) {
-                println("${Date()}: $locationNumber")
-            }
+//            if (locationNumber%1000000 == zero) {
+//                println("${Date()}: $locationNumber")
+//            }
 
             val seedNumber = locationToSeed(locationNumber, almanac)
             if (seedNumberInSeedNumberRanges(seedNumber, almanac)) {
                 matchingSeedNumberFound = true
-                println("lowest location number $locationNumber <- seed number $seedNumber")
+                context["seedNumber"] = seedNumber
+//                println("lowest location number $locationNumber <- seed number $seedNumber")
             }
         }
-        return locationNumber
+
+
+        return Pair(locationNumber, context)
     }
 
     fun parseInput(input:List<String>) : Almanac {

@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
 
 class P02_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "colored cubes game"
+    }
+
     companion object {
         val COLORS_IN_BAG = mapOf("red" to 12, "green" to 13, "blue" to 14)
     }
@@ -27,7 +31,7 @@ class P02_Solver : BaseSolver() {
                         gamePhase.keys
                             .filter { color -> gamePhase[color]!! > COLORS_IN_BAG[color]!! }.toList()}
                     .filter { list -> list.isEmpty()}
-                println("${game.first} $okPhases")
+//                println("${game.first} $okPhases")
                 okPhases.size == game.second.size }
             .map {game -> game.first}
             .sum()

@@ -8,6 +8,10 @@ fun main(args: Array<String>) {
 }
 
 class P08_Solver : BaseSolver() {
+
+    override fun getPuzzleName(): String {
+        return "desert navigation"
+    }
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
 //        val (instructions, nodeInstructions) = parseInput(inputLines)
 //
@@ -32,7 +36,7 @@ class P08_Solver : BaseSolver() {
         val (instructions, nodeInstructions) = parseInput(inputLines)
 
         val startNodes = nodeInstructions.keys.filter{it.endsWith('A')}
-        println("startNodes: $startNodes")
+//        println("startNodes: $startNodes")
 
         var currentNodes = startNodes.map{it to it}.toMap()
         var steps:Long = 0
@@ -72,7 +76,7 @@ class P08_Solver : BaseSolver() {
                             visitedNodes[it.key]!![it.value]!!.forEach { timestamp ->
                                 val zero:Long = 0
                                 if (timestamp != latestTimestamp && (latestTimestamp - timestamp) % instructions.length == zero) {
-                                    println("cycle detected for start node ${it.key}: visited ${it.value} at step $timestamp and step $latestTimestamp (${instructions.length} instructions)")
+//                                    println("cycle detected for start node ${it.key}: visited ${it.value} at step $timestamp and step $latestTimestamp (${instructions.length} instructions)")
                                     cycleFoundNodes[it.key] = Pair(timestamp, timestamp / instructions.length)
                                 }
                             }
@@ -81,8 +85,8 @@ class P08_Solver : BaseSolver() {
                 }
             }
         }
-        println("cycleFoundNodes: $cycleFoundNodes")
-        println("currentNodes: $currentNodes")
+//        println("cycleFoundNodes: $cycleFoundNodes")
+//        println("currentNodes: $currentNodes")
         return cycleFoundNodes.map{it.value.second}.reduce { acc, i -> acc * i } * instructions.length
     }
 

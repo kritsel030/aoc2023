@@ -8,14 +8,16 @@ fun main(args: Array<String>) {
 }
 
 class Pxx_Solver : BaseSolver() {
+
+    override fun getPuzzleName(): String {
+        return "<unnamed>"
+    }
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        return "dummy answer"
+        return "TODO"
     }
 
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        var context = mutableMapOf<String, Any>(Pair("someKey", "someValue"))
-
-        return Pair("dummy answer", context)
+        return "TODO"
     }
 }
 

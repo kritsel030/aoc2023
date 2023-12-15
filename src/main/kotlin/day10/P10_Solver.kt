@@ -12,6 +12,10 @@ fun main(args: Array<String>) {
 
 class P10_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "pipe maze"
+    }
+
     // answer: 6757
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         // initialized the grid
@@ -34,7 +38,7 @@ class P10_Solver : BaseSolver() {
         if (startCoordinate == null) {
             throw IllegalStateException("we haven't found the start coordinate yet")
         } else {
-            println("start coordinate: $startCoordinate")
+//            println("start coordinate: $startCoordinate")
         }
 
         // now start moving until we're back at Start again
@@ -45,16 +49,14 @@ class P10_Solver : BaseSolver() {
                 break
         }
 
-        println("path length: ${cursor.path.size}")
+//        println("path length: ${cursor.path.size}")
 
         return cursor.path.size/2
 
     }
 
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        var context = mutableMapOf<String, Any>(Pair("someKey", "someValue"))
-
-        return Pair("dummy answer", context)
+        return "TODO"
     }
 }
 
@@ -65,7 +67,7 @@ class P10_Solver : BaseSolver() {
 class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : Cursor<Char>(grid, startCoordinate) {
 
     fun move() {
-        println("move")
+//        println("move")
         val latestDirection = latestDirection()
         val moveDirection = when (latestDirection) {
             null -> directionFromStart()
@@ -77,7 +79,7 @@ class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : Cursor<Char>(g
         }
         if (okMove(moveDirection)) {
             move(moveDirection)
-            println("  moved $moveDirection to ${getValue()} at ${currentCoordinate.rowNo},${currentCoordinate.colNo}")
+//            println("  moved $moveDirection to ${getValue()} at ${currentCoordinate.rowNo},${currentCoordinate.colNo}")
         } else {
             throw IllegalStateException("We cannot move to $moveDirection, now we're stuck")
         }

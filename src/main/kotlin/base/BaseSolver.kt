@@ -3,6 +3,9 @@ package base
 import util.FileUtil
 import java.lang.Exception
 import java.util.*
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 abstract class BaseSolver {
 
@@ -19,57 +22,69 @@ abstract class BaseSolver {
         val input = FileUtil.readMultiLineFile(resourceURL)
 
         if (part == Part.PART1 || part == Part.BOTH) {
+            val start = System.currentTimeMillis()
             var solveResult = solvePart1(input, inputVariant)
+            val duration = (System.currentTimeMillis() - start).toDuration(DurationUnit.MILLISECONDS)
             var answer : Any = solveResult
             var context : Map<String, Any>? = null
             if (solveResult is Pair<*, *>) {
                 answer = solveResult.first!!
                 context = solveResult.second as Map<String, Any>?
             }
-            printAnswerDetails(1, answer, context, inputVariant)
+            printAnswerDetails(1, answer, context, inputVariant, duration)
         }
         if (part == Part.PART2 || part == Part.BOTH) {
+            val start = System.currentTimeMillis()
             var solveResult = solvePart2(input, inputVariant)
+            val duration = (System.currentTimeMillis() - start).toDuration(DurationUnit.MILLISECONDS)
             var answer : Any = solveResult
             var context : Map<String, Any>? = null
             if (solveResult is Pair<*, *>) {
                 answer = solveResult.first!!
                 context = solveResult.second as Map<String, Any>?
             }
-            printAnswerDetails(2, answer, context, inputVariant)
+            printAnswerDetails(2, answer, context, inputVariant, duration)
         }
     }
 
     abstract fun solvePart1(inputLines:List<String>, inputVariant:INPUT_VARIANT) : Any
     abstract fun solvePart2(inputLines:List<String>, inputVariant: INPUT_VARIANT) : Any
 
-    fun printAnswerDetails(part: Int, answer: Any, context: Map<String, Any>?, inputVariant: INPUT_VARIANT) {
+    open fun getPuzzleName():String {
+        return "<unnamed>"
+    }
+
+    fun printAnswerDetails(part: Int, answer: Any, context: Map<String, Any>?, inputVariant: INPUT_VARIANT, duration:Duration) {
         val day =  this::class.java.`package`.name
         val appendix = if (inputVariant == INPUT_VARIANT.EXAMPLE) "(!!!TEST!!!)" else ""
 
         if (context != null) {
             System.out.printf(
-                "answer %s, part #%d: %s (%s) %s",
+                "answer %s (%s), part #%d: %s in %s (%s) %s",
                 day,
+                getPuzzleName(),
                 part,
                 answer,
+                duration,
                 contextToString(context),
                 appendix
             )
         } else {
             System.out.printf(
-                "answer %s, part #%d: %s %s",
+                "answer %s (%s), part #%d: %s in %s %s",
                 day,
+                getPuzzleName(),
                 part,
                 answer,
+                duration,
                 appendix
             )
         }
         println()
     }
 
-    fun printAnswerDetails(part: Int, answer: Any, inputVariant: INPUT_VARIANT) {
-        printAnswerDetails(part, answer, null, inputVariant)
+    fun printAnswerDetails(part: Int, answer: Any, inputVariant: INPUT_VARIANT, duration: Duration) {
+        printAnswerDetails(part, answer, null, inputVariant, duration)
     }
 
     // basically return the name of this solver's package (e.g. day01)

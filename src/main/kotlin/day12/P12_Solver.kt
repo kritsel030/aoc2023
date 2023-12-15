@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
 
 class P12_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "hot springs"
+    }
+
     // answer: 7195
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         return inputLines.map{ it ->
@@ -33,9 +37,7 @@ class P12_Solver : BaseSolver() {
     }
 
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        var context = mutableMapOf<String, Any>(Pair("someKey", "someValue"))
-
-        return Pair("dummy answer", context)
+        return "TODO"
     }
 
     fun fitsGivenSummary(springs:String, givenDamagedSpringSummary:List<Int>) : Boolean {

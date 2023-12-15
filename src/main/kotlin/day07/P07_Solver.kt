@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
 
 class P07_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "camel cards"
+    }
+
     // answer: 251136060
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         return inputLines

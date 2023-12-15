@@ -13,6 +13,10 @@ fun main(args: Array<String>) {
 
 class P13_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "mirrors"
+    }
+
     // answer: 32723
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         return chunkInput(inputLines).sumOf {pattern ->
@@ -32,45 +36,42 @@ class P13_Solver : BaseSolver() {
    }
 
     private fun findMirrorsForOrientation(grid: Grid2D<Char>, orientation: ORIENTATION): List<Int> {
-        // find mirror lines
         val size = grid.size(orientation)
 
         // this puzzle's grid uses a 1-based index, so we start at 1
-        val mirrorIndices = (1 .. size - 1)
+        val mirrorTestIndices = (1 .. size - 1)
             .filter {
                 if (grid.getValues(orientation, it).equals(grid.getValues(orientation, it + 1))) {
                     // we've found two rows/columns next to each other who are identical
                     // now let's see if this is a real mirror
-                    println("potential $orientation mirror between indices $it and ${it + 1} (size=$size)")
+//                    println("potential $orientation mirror between indices $it and ${it + 1} ($orientation grid size = $size)")
 
                     // mirrorspan = the number of rows/columns the mirror should span
                     // so it reaches all the way till the border of the grid
                     val mirrorSpan = min(it, size-it)
-                    println("mirrorspan: $mirrorSpan")
+//                    println("mirrorspan: $mirrorSpan")
 
                     // now check if each pair of rows/colums within the mirror span is identical
                     // (we count the pairs which AREN'T equal and check if that count is 0)
                     val mirrorFound = (0 until mirrorSpan).count { indexDelta ->
-                        print("compare $orientation indices ${it - indexDelta} and ${it + 1 + indexDelta}: ")
+//                        print("compare $orientation indices ${it - indexDelta} and ${it + 1 + indexDelta}: ")
                         val result =
                             grid.getValues(orientation, it - indexDelta).equals(grid.getValues(orientation, it + 1 + indexDelta))
-                        println(result)
+//                        println(result)
                         !result
                     } == 0
-                    println("mirror found: $mirrorFound")
+//                    println("mirror found: $mirrorFound")
                     mirrorFound
                 } else {
                     false
                 }
             }
-        return mirrorIndices
+        return mirrorTestIndices
     }
 
 
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        var context = mutableMapOf<String, Any>(Pair("someKey", "someValue"))
-
-        return Pair("dummy answer", context)
+        return "TODO"
     }
 
     fun chunkInput(inputLines: List<String>) : MutableList<MutableList<String>> {

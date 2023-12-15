@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
 
 class P06_Solver : BaseSolver() {
 
+    override fun getPuzzleName(): String {
+        return "boat race"
+    }
+
     // answer: 2269432
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val races:List<Pair<Long, Long>> =
