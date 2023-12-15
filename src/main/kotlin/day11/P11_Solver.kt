@@ -2,6 +2,7 @@ package day11
 
 import base.BaseSolver
 import base.INPUT_VARIANT
+import util.grid.ORIENTATION
 import util.grid.Coordinate
 import util.grid.Grid2DFactory
 import kotlin.math.max
@@ -17,18 +18,15 @@ class P11_Solver : BaseSolver() {
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val grid = Grid2DFactory.initCharGrid(inputLines)
 
-        // A. find the empty rows and columns
-        val emptyRows = (0 until grid.gridValues.size)
-            .filter{grid.getRowValues(it).count{cell -> !cell.equals('.')} == 0}
-        val emptyColumns = (0 until grid.gridValues[0].size)
-            .filter{grid.getColumnValues(it).count{cell -> !cell.equals('.')} == 0}
-
-        // B. expand the grid
-        emptyRows.forEachIndexed {index, rowNo ->
-            grid.gridValues.add(rowNo+index, MutableList(grid.getRowValues(0).size){'.'})
-        }
-        emptyColumns.forEachIndexed {index, colNo ->
-            grid.gridValues.forEach { row -> row.add(index+colNo, '.') }
+        // expand the grid, do the same for the horizontal (rows) and vertical (columns) orientation
+        ORIENTATION.values().forEach { orientation ->
+            (0 until grid.size(orientation))
+                // A find the indices of the 'empty' rows/columns
+                .filter{grid.getValues(orientation, it).count{cell -> cell != '.' } == 0}
+                // B expand the grid for every empty row/column found
+                .forEachIndexed {index, emptyOrientationIndex ->
+                    grid.addValues(orientation, emptyOrientationIndex + index, '.')
+            }
         }
 
 //        grid.print()
@@ -50,15 +48,18 @@ class P11_Solver : BaseSolver() {
         val grid = Grid2DFactory.initCharGrid(inputLines)
 
         // A. find the empty rows and columns
-        val emptyRows = (0 until grid.gridValues.size)
-            .filter{grid.getRowValues(it).count{cell -> !cell.equals('.')} == 0}
-            .map{it.toLong()}
-        val emptyColumns = (0 until grid.gridValues[0].size)
-            .filter{grid.getColumnValues(it).count{cell -> !cell.equals('.')} == 0}
-            .map{it.toLong()}
+        val emptyOrientationsIndices:Map<ORIENTATION, List<Long>> = ORIENTATION.values()
+            .map { orientation ->
+                orientation to (0 until grid.size(orientation))
+                    // A find the 'empty' rows/columns
+                    .filter { grid.getValues(orientation, it).count { cell -> !cell.equals('.') } == 0 }
+                    .map{it.toLong()}
+            }
+            .toMap()
+
 
         // B. find all galaxy coordinates
-        val galaxies = (0 until grid.gridValues.size)
+        val galaxies = (0 until grid.rowCount())
             .map { rowNo -> grid.getRowValues(rowNo)
                 .mapIndexed{colNo, value -> if (value == '#') Coordinate(rowNo, colNo) else null}
                 .filterNotNull()
@@ -75,10 +76,11 @@ class P11_Solver : BaseSolver() {
             val colMax = max(galaxy1.colNo, galaxy2.colNo).toLong()
             // process rowIDs
             val rowDistance = (rowMin until rowMax)
-                .map{rowNo -> if (emptyRows.contains(rowNo)) factor else 1}
+                .map{rowNo -> if (emptyOrientationsIndices[ORIENTATION.HORIZONTAL]!!.contains(rowNo)) factor else 1}
                 .sum()
+            // process colIDs
             val colDistance = (colMin until colMax)
-                .map{colNo -> if (emptyColumns.contains(colNo)) factor else 1}
+                .map{colNo -> if (emptyOrientationsIndices[ORIENTATION.VERTICAL]!!.contains(colNo)) factor else 1}
                 .sum()
             rowDistance + colDistance
         }.sum()}.sum()/2

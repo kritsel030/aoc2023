@@ -11,7 +11,7 @@ class P12_Solver : BaseSolver() {
 
     // answer: 7195
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        return inputLines.map{
+        return inputLines.map{ it ->
             val line = it
             var springs = line.split(' ')[0]
             val brokenSpringsSummary = line.split(' ')[1].split(',').map{it.toInt()}
@@ -19,7 +19,7 @@ class P12_Solver : BaseSolver() {
     //        println("springs: $springs")
     //        println("brokenSpringsSummary: $brokenSpringsSummary")
 
-            val unknownSpringsCount = line.count { it.equals('?') }
+            val unknownSpringsCount = line.count { spring -> spring == '?' }
                 (0 until Math.pow(2.0, unknownSpringsCount.toDouble()).toInt())
                 .map{
                     var springsVariant = springs
