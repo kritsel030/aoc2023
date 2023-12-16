@@ -143,6 +143,26 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
+    fun replaceRow(rowNo:Int, row:MutableList<T>) {
+        val effectiveRowNo = rowNo-indexBase
+        gridValues.removeAt(effectiveRowNo)
+        gridValues.add(effectiveRowNo, row)
+    }
+
+    fun replaceColumn(colNo:Int, column:MutableList<T>) {
+        val effectiveColNo = colNo - indexBase
+        gridValues.forEachIndexed { rowNo, row ->
+            row[effectiveColNo] = column[rowNo]
+        }
+    }
+
+    fun replaceValues(orientation: ORIENTATION, id:Int, values:MutableList<T>) {
+        when (orientation) {
+            ORIENTATION.HORIZONTAL -> replaceRow(id, values)
+            ORIENTATION.VERTICAL -> replaceColumn(id, values)
+        }
+    }
+
     fun print(cursor:Cursor<T>? = null) {
         // column index line
         print("    ")
