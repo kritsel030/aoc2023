@@ -27,7 +27,7 @@ class P13_Solver : BaseSolver() {
             // find mirrors for both the horizontal and vertical orientation
             // and do the math based on the mirror indexes
             ORIENTATION.values().sumOf { orientation ->
-                findMirrorsForOrientation(
+                findMirrorsForOrientation1(
                     grid,
                     orientation
                 ).sumOf { gridIndex -> gridIndex * (if (orientation == ORIENTATION.VERTICAL) 1 else 100) }
@@ -35,7 +35,7 @@ class P13_Solver : BaseSolver() {
         }
    }
 
-    private fun findMirrorsForOrientation(grid: Grid2D<Char>, orientation: ORIENTATION): List<Int> {
+    private fun findMirrorsForOrientation1(grid: Grid2D<Char>, orientation: ORIENTATION): List<Int> {
         val size = grid.size(orientation)
 
         // this puzzle's grid uses a 1-based index, so we start at 1
@@ -53,20 +53,55 @@ class P13_Solver : BaseSolver() {
 
                     // now check if each pair of rows/colums within the mirror span is identical
                     // (we count the pairs which AREN'T equal and check if that count is 0)
-                    val mirrorFound = (0 until mirrorSpan).count { indexDelta ->
-//                        print("compare $orientation indices ${it - indexDelta} and ${it + 1 + indexDelta}: ")
-                        val result =
-                            grid.getValues(orientation, it - indexDelta).equals(grid.getValues(orientation, it + 1 + indexDelta))
-//                        println(result)
-                        !result
-                    } == 0
-//                    println("mirror found: $mirrorFound")
+                    val mirrorFound = isMirrorPresent(grid, it, orientation, mirrorSpan)
+                    //                    println("mirror found: $mirrorFound")
                     mirrorFound
                 } else {
                     false
                 }
             }
         return mirrorTestIndices
+    }
+
+    private fun findMirrorsForOrientation2(grid: Grid2D<Char>, orientation: ORIENTATION): List<Int> {
+        val size = grid.size(orientation)
+
+        // this puzzle's grid uses a 1-based index, so we start at 1
+        val potentialMirrorOuterIndices = (1 .. size)
+            .map { index1 ->
+                index1 to (1..size)
+                    .filter { index2 ->
+                        index1 != index2
+                                && (index2-index1)%2 == 0
+                                && grid.getValues(orientation, index1)
+                            .filterIndexed { i, value -> value == grid.getValues(orientation, index2)[i] }.count() == 1
+                    }
+
+            }
+            .map { it.first to it.second }.toMap()
+
+        potentialMirrorOuterIndices.map {(index1, others) ->
+            others.map {  }
+        }
+
+        return emptyList()
+    }
+
+
+    private fun isMirrorPresent(
+        grid: Grid2D<Char>,
+        startIndex: Int,
+        orientation: ORIENTATION,
+        mirrorSpan: Int
+    ): Boolean {
+        val mirrorFound = (0 until mirrorSpan).count { indexDelta ->
+    //                        print("compare $orientation indices ${it - indexDelta} and ${it + 1 + indexDelta}: ")
+            val result =
+                grid.getValues(orientation, startIndex - indexDelta).equals(grid.getValues(orientation, startIndex + 1 + indexDelta))
+    //                        println(result)
+            !result
+        } == 0
+        return mirrorFound
     }
 
 
