@@ -23,7 +23,7 @@ abstract class BaseSolver {
 
         if (part == Part.PART1 || part == Part.BOTH) {
             val start = System.currentTimeMillis()
-            var solveResult = solvePart1(input, inputVariant)
+            val solveResult = solvePart1(input, inputVariant)
             val duration = (System.currentTimeMillis() - start).toDuration(DurationUnit.MILLISECONDS)
             var answer : Any = solveResult
             var context : Map<String, Any>? = null
@@ -33,9 +33,11 @@ abstract class BaseSolver {
             }
             printAnswerDetails(1, answer, context, inputVariant, duration)
         }
+
+//        input = FileUtil.readMultiLineFile(resourceURL)
         if (part == Part.PART2 || part == Part.BOTH) {
             val start = System.currentTimeMillis()
-            var solveResult = solvePart2(input, inputVariant)
+            val solveResult = solvePart2(input, inputVariant)
             val duration = (System.currentTimeMillis() - start).toDuration(DurationUnit.MILLISECONDS)
             var answer : Any = solveResult
             var context : Map<String, Any>? = null

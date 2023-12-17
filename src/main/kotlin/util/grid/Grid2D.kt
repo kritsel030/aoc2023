@@ -15,31 +15,32 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
 
     // initialize a grid of <rowCount> rows and <colCount> columns,
     // where each cell has value <initialValue>
-    constructor(rowCount:Int, colCount:Int, initialValue:T, indexBase:Int = 0) :
-            this(MutableList(rowCount) {MutableList(colCount) {initialValue}}, indexBase) {}
+    constructor(rowCount: Int, colCount: Int, initialValue: T, indexBase: Int = 0) :
+            this(MutableList(rowCount) { MutableList(colCount) { initialValue } }, indexBase) {
+    }
 
-    var visitedCoordinates : MutableMap<Coordinate, Cursor<T>> = mutableMapOf()
+    var visitedCoordinates: MutableMap<Coordinate, MutableMap<Any, Any>> = mutableMapOf()
 
-    fun rowCount() : Int {
+    fun rowCount(): Int {
         return gridValues.size
     }
 
-    fun colCount() : Int {
+    fun colCount(): Int {
         return if (gridValues.isEmpty()) 0 else gridValues[0].size
     }
 
-    fun size(orientation: ORIENTATION) : Int {
+    fun size(orientation: ORIENTATION): Int {
         return when (orientation) {
             ORIENTATION.HORIZONTAL -> rowCount()
             ORIENTATION.VERTICAL -> colCount()
         }
     }
 
-    fun getValue(coordinate:Coordinate) : T {
+    fun getValue(coordinate: Coordinate): T {
         return getValue(coordinate.rowNo, coordinate.colNo)
     }
 
-    fun getValue(rowNo: Int, colNo: Int) : T {
+    fun getValue(rowNo: Int, colNo: Int): T {
         if (isValidPosition(rowNo, colNo)) {
             val effectiveRowNo = rowNo - indexBase
             val effectiveColNo = colNo - indexBase
@@ -59,41 +60,41 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    fun getRowValues(rowNo:Int) : MutableList<T>{
+    fun getRowValues(rowNo: Int): MutableList<T> {
         val effectiveRowNo = rowNo - indexBase
         return gridValues[effectiveRowNo]
     }
 
-    fun getColumnValues(colNo:Int) : MutableList<T> {
+    fun getColumnValues(colNo: Int): MutableList<T> {
         val effectiveColNo = colNo - indexBase
         return gridValues.map { it[effectiveColNo] }.toMutableList()
     }
 
-    fun getValues(orientation: ORIENTATION, id: Int) : MutableList<T> {
+    fun getValues(orientation: ORIENTATION, id: Int): MutableList<T> {
         return when (orientation) {
             ORIENTATION.HORIZONTAL -> getRowValues(id)
             ORIENTATION.VERTICAL -> getColumnValues(id)
         }
     }
 
-    fun isValidPosition(coordinate:Coordinate) : Boolean {
+    fun isValidPosition(coordinate: Coordinate): Boolean {
         return isValidPosition(coordinate.rowNo, coordinate.colNo)
     }
 
-    fun isValidPosition(rowNo:Int, colNo:Int) : Boolean{
+    fun isValidPosition(rowNo: Int, colNo: Int): Boolean {
 //        println("Grid2D.isValidPosition ${rowNo} + ${colNo}")
         val effectiveRowNo = rowNo - indexBase
         val effectiveColNo = colNo - indexBase
-        if (effectiveRowNo !in 0..gridValues.size-1) {
+        if (effectiveRowNo !in 0..gridValues.size - 1) {
             return false
         }
-        if (effectiveColNo !in 0..gridValues[effectiveRowNo].size-1) {
+        if (effectiveColNo !in 0..gridValues[effectiveRowNo].size - 1) {
             return false
         }
         return true
     }
 
-    fun addRow(rowNo:Int = -1, rowValues:MutableList<T>) {
+    fun addRow(rowNo: Int = -1, rowValues: MutableList<T>) {
         if (rowNo < 0)
             gridValues.add(rowValues)
         else {
@@ -102,8 +103,8 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    fun addRow(rowNo:Int = -1, value:T) {
-        val newRow = MutableList(colCount()){value}
+    fun addRow(rowNo: Int = -1, value: T) {
+        val newRow = MutableList(colCount()) { value }
         if (rowNo < 0)
             gridValues.add(newRow)
         else {
@@ -112,13 +113,14 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    fun addColumn(colNo: Int = -1, colValues:MutableList<T>) {
+    fun addColumn(colNo: Int = -1, colValues: MutableList<T>) {
         val effectiveColNo = colNo - indexBase
-        gridValues.forEachIndexed {index, row ->
-                row.add(effectiveColNo, colValues[index]) }
+        gridValues.forEachIndexed { index, row ->
+            row.add(effectiveColNo, colValues[index])
+        }
     }
 
-    fun addColumn(colNo: Int = -1, value:T) {
+    fun addColumn(colNo: Int = -1, value: T) {
         val effectiveColNo = colNo - indexBase
         gridValues.forEach { row ->
             if (effectiveColNo < 0)
@@ -129,38 +131,88 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    fun addValues(orientation: ORIENTATION, id: Int, values:MutableList<T>) {
+    fun addValues(orientation: ORIENTATION, id: Int, values: MutableList<T>) {
         when (orientation) {
             ORIENTATION.HORIZONTAL -> addRow(id, values)
             ORIENTATION.VERTICAL -> addColumn(id, values)
         }
     }
 
-    fun addValues(orientation: ORIENTATION, id:Int, value:T) {
+    fun addValues(orientation: ORIENTATION, id: Int, value: T) {
         when (orientation) {
             ORIENTATION.HORIZONTAL -> addRow(id, value)
             ORIENTATION.VERTICAL -> addColumn(id, value)
         }
     }
 
-    fun replaceRow(rowNo:Int, row:MutableList<T>) {
-        val effectiveRowNo = rowNo-indexBase
+    fun replaceRow(rowNo: Int, row: MutableList<T>) {
+        val effectiveRowNo = rowNo - indexBase
         gridValues.removeAt(effectiveRowNo)
         gridValues.add(effectiveRowNo, row)
     }
 
-    fun replaceColumn(colNo:Int, column:MutableList<T>) {
+    fun replaceColumn(colNo: Int, column: MutableList<T>) {
         val effectiveColNo = colNo - indexBase
         gridValues.forEachIndexed { rowNo, row ->
             row[effectiveColNo] = column[rowNo]
         }
     }
 
-    fun replaceValues(orientation: ORIENTATION, id:Int, values:MutableList<T>) {
+    fun replaceValues(orientation: ORIENTATION, id: Int, values: MutableList<T>) {
         when (orientation) {
             ORIENTATION.HORIZONTAL -> replaceRow(id, values)
             ORIENTATION.VERTICAL -> replaceColumn(id, values)
         }
+    }
+
+    fun isVisited(coordinate: Coordinate, direction: Direction?): Boolean {
+//        val print = coordinate.equals(Coordinate(72, 20))
+        val print = false
+        if (print) {
+            println("isVisited($coordinate, $direction)")
+        }
+        return if (direction == null) {
+            if (print)
+                println("visitedCoordinates.containsKey($coordinate): ${visitedCoordinates.containsKey(coordinate)}")
+            visitedCoordinates.containsKey(coordinate)
+        } else {
+            if (print) {
+                println("visitedCoordinates.containsKey($coordinate): ${visitedCoordinates.containsKey(coordinate)}")
+                println("details: ${visitedCoordinates[coordinate]}")
+                if (visitedCoordinates.containsKey(coordinate) )
+                    println("visitedCoordinates[$coordinate]!![$direction]: ${visitedCoordinates[coordinate]!![direction]}")
+            }
+            var result = visitedCoordinates.containsKey(coordinate) && (visitedCoordinates[coordinate]!![direction] == true)
+            if (print) {
+                println("result: $result")
+                println("---------------")
+            }
+            result
+        }
+    }
+
+    fun reset() {
+        visitedCoordinates = mutableMapOf()
+    }
+
+    fun find(value: T): List<Coordinate> {
+        return (0 until rowCount())
+            .map { rowNo ->
+                getRowValues(rowNo)
+                    .mapIndexed { colNo, value -> if (value == value) Coordinate(rowNo, colNo) else null }
+                    .filterNotNull()
+                    .toList()
+            }
+            .flatten()
+    }
+
+    fun count(value: T): Int {
+        return (0 until rowCount())
+            .map { rowNo ->
+                getRowValues(rowNo)
+                    .map { gridValue -> if (gridValue == value) 1 else 0 }.sum()
+            }
+            .sum()
     }
 
     fun print(cursor:Cursor<T>? = null) {
@@ -179,9 +231,16 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             print(rowNo.absoluteValue.toString().padStart(2, ' ') + "| ")
             colValues.forEachIndexed { colIndex, value ->
                 val colNo = colIndex + indexBase
+//                if (cursor?.isAt(rowNo, colNo) == true) {
+//                    print("[$value]")
+//                } else if (cursor?.hasVisited(rowNo, colNo) == true) {
+//                    print("($value)")
+//                } else {
+//                    print(" $value ")
+//                }
                 if (cursor?.isAt(rowNo, colNo) == true) {
                     print("[$value]")
-                } else if (cursor?.hasVisited(rowNo, colNo) == true) {
+                } else if (visitedCoordinates.containsKey(Coordinate(rowNo, colNo))) {
                     print("($value)")
                 } else {
                     print(" $value ")
