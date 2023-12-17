@@ -11,13 +11,13 @@ import kotlin.math.max
 fun main(args: Array<String>) {
     P16_Solver().solve(INPUT_VARIANT.REAL, Part.PART1)
     println("=============================================")
-    P16_Solver().solve(INPUT_VARIANT.REAL, Part.PART1)
+    P16_Solver().solve(INPUT_VARIANT.REAL, Part.PART2)
 }
 
 class P16_Solver : BaseSolver() {
 
     var moveBeamCounter = 0
-    var visitedCoordinates:MutableList<Coordinate> = mutableListOf()
+//    var visitedCoordinates:MutableList<Coordinate> = mutableListOf()
 
     override fun getPuzzleName(): String {
         return "beam of light"
@@ -37,7 +37,7 @@ class P16_Solver : BaseSolver() {
                 println("moveBeamCounter: $moveBeamCounter")
                 println("visited coordinates: ${grid.visitedCoordinates.size}")
                 println("visited coordinates 2: ${grid.visitedCoordinates.map{(_, details) -> details["count"]!! as Int}.sum()}")
-                println("last x visited coordinates: ${visitedCoordinates.subList(0, 100)} (${visitedCoordinates.subList(0, 100).toSet().size})")
+//                println("last x visited coordinates: ${visitedCoordinates.subList(0, 100)} (${visitedCoordinates.subList(0, 100).toSet().size})")
                 println("maxDepth: $maxDepth")
                 println("currentDepth: $currentDepth")
             }
@@ -70,7 +70,7 @@ class P16_Solver : BaseSolver() {
 //                grid.reset()
 //                result
 //            }
-//
+
 //        val maxNorth = (0 until grid.colCount())
 //            .maxOf { colNo ->
 //                val cursor:Cursor<Char> = Cursor(grid, Coordinate(grid.rowCount()-1, colNo), Direction.NORTH, CursorPathStrategy.LATEST_ONLY)
@@ -80,29 +80,29 @@ class P16_Solver : BaseSolver() {
 //                grid.reset()
 //                result
 //            }
-//
-        val maxEast = (0 until grid.rowCount())
-            .maxOf { rowNo ->
-                val cursor:Cursor<Char> = Cursor(grid, Coordinate(rowNo, 0), Direction.EAST)
-                println("cursor: $cursor")
-                moveBeam(cursor, NEXT_DIRECTIONS[Pair(Direction.EAST, cursor.getValue())]!!.first())
-                val result = grid.visitedCoordinates.size
-                grid.reset()
-                result
-            }
 
-//        val maxWest = (0 until grid.rowCount())
+//        val maxEast = (0 until grid.rowCount())
 //            .maxOf { rowNo ->
-//                val cursor:Cursor<Char> = Cursor(grid, Coordinate(rowNo, grid.colCount()-1), Direction.WEST, CursorPathStrategy.LATEST_ONLY)
+//                val cursor:Cursor<Char> = Cursor(grid, Coordinate(rowNo, 0), Direction.EAST)
 //                println("cursor: $cursor")
-//                moveBeam(cursor, NEXT_DIRECTIONS[Pair(Direction.WEST, cursor.getValue())]!!.first())
+//                moveBeam(cursor, NEXT_DIRECTIONS[Pair(Direction.EAST, cursor.getValue())]!!.first())
 //                val result = grid.visitedCoordinates.size
 //                grid.reset()
 //                result
 //            }
 
-//        return maxOf(maxSouth, maxNorth, maxEast, maxWest)
-        return maxEast
+        val maxWest = (0 until grid.rowCount())
+            .maxOf { rowNo ->
+                val cursor:Cursor<Char> = Cursor(grid, Coordinate(rowNo, grid.colCount()-1), Direction.WEST, CursorPathStrategy.LATEST_ONLY)
+                println("cursor: $cursor")
+                moveBeam(cursor, NEXT_DIRECTIONS[Pair(Direction.WEST, cursor.getValue())]!!.first())
+                val result = grid.visitedCoordinates.size
+                grid.reset()
+                result
+            }
+
+        return maxOf(maxWest)
+//        return maxEast
     }
 
     var maxDepth = 0
@@ -111,7 +111,7 @@ class P16_Solver : BaseSolver() {
         maxDepth = max(depth, maxDepth)
         currentDepth = depth
         moveBeamCounter++
-        visitedCoordinates.add(0, cursorIn.currentCoordinate)
+//        visitedCoordinates.add(0, cursorIn.currentCoordinate)
 
         cursorIn.move(direction)
         var cursor = cursorIn
