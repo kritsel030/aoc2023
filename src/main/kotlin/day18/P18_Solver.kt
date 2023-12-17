@@ -1,16 +1,16 @@
-package day17
+package day18
 
 import base.BaseSolver
 import base.INPUT_VARIANT
 
 fun main(args: Array<String>) {
-    P17_Solver().solve(INPUT_VARIANT.EXAMPLE)
+    P18_Solver().solve(INPUT_VARIANT.EXAMPLE)
 }
 
-class P17_Solver : BaseSolver() {
+class P18_Solver : BaseSolver() {
 
     override fun getPuzzleName(): String {
-        return "heat loss"
+        return "<unnamed>"
     }
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         return "TODO"
