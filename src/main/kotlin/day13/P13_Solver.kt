@@ -5,10 +5,11 @@ import base.INPUT_VARIANT
 import util.grid.ORIENTATION
 import util.grid.Grid2D
 import util.grid.Grid2DFactory
+import java.lang.IllegalArgumentException
 import java.lang.Integer.min
 
 fun main(args: Array<String>) {
-    P13_Solver().solve(INPUT_VARIANT.REAL)
+    P13_Solver().solve(INPUT_VARIANT.EXAMPLE)
 }
 
 class P13_Solver : BaseSolver() {
@@ -34,6 +35,29 @@ class P13_Solver : BaseSolver() {
             }
         }
    }
+
+    override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
+        val pattern2 = chunkInput(inputLines)[1]
+        val grid2= Grid2DFactory.initCharGrid(pattern2, 1)
+        println("col 2: ${grid2.getValues(ORIENTATION.VERTICAL, 2)}")
+        println("col 5: ${grid2.getValues(ORIENTATION.VERTICAL, 5)}")
+        println("differences: ${differences(grid2.getValues(ORIENTATION.VERTICAL, 2), grid2.getValues(ORIENTATION.VERTICAL, 5))}")
+
+        return chunkInput(inputLines).sumOf {pattern ->
+            // we use a 1-based index for this puzzle's grid
+            // meaning that the index number for the first column/row is 1 and not 0
+            val grid = Grid2DFactory.initCharGrid(pattern, 1)
+
+            // find mirrors for both the horizontal and vertical orientation
+            // and do the math based on the mirror indexes
+            ORIENTATION.values().sumOf { orientation ->
+                findMirrorsForOrientation2(
+                    grid,
+                    orientation
+                ).sumOf { gridIndex -> gridIndex * (if (orientation == ORIENTATION.VERTICAL) 1 else 100) }
+            }
+        }
+    }
 
     private fun findMirrorsForOrientation1(grid: Grid2D<Char>, orientation: ORIENTATION): List<Int> {
         val size = grid.size(orientation)
@@ -72,19 +96,33 @@ class P13_Solver : BaseSolver() {
                 index1 to (1..size)
                     .filter { index2 ->
                         index1 != index2
-                                && (index2-index1)%2 == 0
-                                && grid.getValues(orientation, index1)
-                            .filterIndexed { i, value -> value == grid.getValues(orientation, index2)[i] }.count() == 1
+                                && index1 < index2
+                                && (index2-index1-1)%2 == 0
+                                && differences(grid.getValues(orientation, index1), grid.getValues(orientation, index2)).size==1
                     }
-
             }
-            .map { it.first to it.second }.toMap()
+            .toMap().filter { (key, value) -> value.isNotEmpty() }
 
-        potentialMirrorOuterIndices.map {(index1, others) ->
-            others.map {  }
-        }
+        println("[$orientation] potentialMirrorOuterIndices: $potentialMirrorOuterIndices")
 
-        return emptyList()
+        val indices = potentialMirrorOuterIndices.map {(index1, others) ->
+            others.map { otherIndex ->
+                val mirrorSpan = (otherIndex - index1 - 1) / 2
+                val centerIndex = index1 + mirrorSpan
+                if (isMirrorPresent(grid, centerIndex, orientation, mirrorSpan-1)) centerIndex else -1
+            }.filter { it >= 0 }
+        }.flatten()
+
+        println("findMirrorsForOrientation2(grid, $orientation) = $indices")
+        return indices
+    }
+
+    // return the indices on which the values in both lists differ
+    fun differences(list1:List<Char>, list2:List<Char>) : List<Int> {
+        if (list1.size != list2.size)
+            throw IllegalArgumentException("lists must be the same size to be compared")
+
+        return list1.indices.filter {list1[it] != list2[it] }
     }
 
 
@@ -102,11 +140,6 @@ class P13_Solver : BaseSolver() {
             !result
         } == 0
         return mirrorFound
-    }
-
-
-    override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        return "TODO"
     }
 
     fun chunkInput(inputLines: List<String>) : MutableList<MutableList<String>> {

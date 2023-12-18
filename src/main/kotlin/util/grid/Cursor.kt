@@ -63,42 +63,53 @@ open class Cursor<T>(
         throw IllegalStateException("sorry, the coordinate $distance steps in $direction direction is out of bounds")
     }
 
-    fun move(direction:Direction, distance: Int? = 1) {
+    fun move(direction:Direction, distance: Int = 1, visitCoordinatesInBetween: Boolean = true, visitedValue:T? = null) {
 //        println("Cursor.move ${position.rowNo} + ${position.colNo}")
-        if (canMove(direction, distance)) {
-            // move returns a new Coordinate instance
-            currentCoordinate = currentCoordinate.move(direction, distance)
-            when (gridStrategy) {
-                CursorGridStrategy.REGISTER_VISITED -> {
-                    // inform the grid that one of its coordinates has been visited
-                    val visitedBefore = grid.visitedCoordinates[currentCoordinate]
-                    if (visitedBefore != null) {
-                        // we've been here before
-                        visitedBefore[direction] = true
-                        visitedBefore["count"] = (visitedBefore["count"]!! as Int) + 1
-                    } else {
-                        // we're new here
-                        val visitedCoordinateDetails: MutableMap<Any, Any> =
-                            mutableMapOf(
-                                direction to true,
-                                "count" to 1)
-                        grid.visitedCoordinates[currentCoordinate] = visitedCoordinateDetails
-                    }
-                }
-                else -> {}
-            }
-            when (pathStrategy) {
-                CursorPathStrategy.FULL_PATH ->
-                    // add to the start of the path, so the path starts at the most recent element and reads backwards
-                    path.add(0, VisitedCoordinate(currentCoordinate, direction, distance))
-                CursorPathStrategy.LATEST_ONLY ->
-                    // overwrite the current single path entry
-                    path.set(0, VisitedCoordinate(currentCoordinate, direction, distance))
-                else -> {}
-            }
-
+        if (visitCoordinatesInBetween) {
+            (1 .. distance).forEach { _ -> move(direction, 1, false, visitedValue) }
         } else {
-            throw IllegalStateException("sorry, the coordinate $distance steps in $direction direction is out of bounds (current coordinate is ${currentCoordinate.rowNo}, ${currentCoordinate.colNo})")
+            if (canMove(direction, distance)) {
+                // move returns a new Coordinate instance
+                currentCoordinate = currentCoordinate.move(direction, distance)
+                if (visitedValue != null) {
+                    grid.setValue(currentCoordinate, visitedValue!!)
+                }
+                when (gridStrategy) {
+                    CursorGridStrategy.REGISTER_VISITED -> {
+                        // inform the grid that one of its coordinates has been visited
+                        val visitedBefore = grid.visitedCoordinates[currentCoordinate]
+                        if (visitedBefore != null) {
+                            // we've been here before
+                            visitedBefore[direction] = true
+                            visitedBefore["count"] = (visitedBefore["count"]!! as Int) + 1
+                        } else {
+                            // we're new here
+                            val visitedCoordinateDetails: MutableMap<Any, Any> =
+                                mutableMapOf(
+                                    direction to true,
+                                    "count" to 1
+                                )
+                            grid.visitedCoordinates[currentCoordinate] = visitedCoordinateDetails
+                        }
+                    }
+
+                    else -> {}
+                }
+                when (pathStrategy) {
+                    CursorPathStrategy.FULL_PATH ->
+                        // add to the start of the path, so the path starts at the most recent element and reads backwards
+                        path.add(0, VisitedCoordinate(currentCoordinate, direction, distance))
+
+                    CursorPathStrategy.LATEST_ONLY ->
+                        // overwrite the current single path entry
+                        path.set(0, VisitedCoordinate(currentCoordinate, direction, distance))
+
+                    else -> {}
+                }
+
+            } else {
+                throw IllegalStateException("sorry, the coordinate $distance steps in $direction direction is out of bounds (current coordinate is ${currentCoordinate.rowNo}, ${currentCoordinate.colNo})")
+            }
         }
     }
 

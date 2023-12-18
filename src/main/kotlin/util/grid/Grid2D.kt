@@ -50,6 +50,10 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
+    fun setValue(coordinate: Coordinate, value: T) {
+        setValue(coordinate.rowNo, coordinate.colNo, value)
+    }
+
     fun setValue(rowNo: Int, colNo: Int, value: T) {
         if (isValidPosition(rowNo, colNo)) {
             val effectiveRowNo = rowNo - indexBase

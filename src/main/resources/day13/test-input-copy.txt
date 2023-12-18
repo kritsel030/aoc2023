@@ -1,0 +1,41 @@
+
+2e pattern origineel
+
+#...##..#
+#....#..#
+..##..###
+#####.##.  <--
+#####.##.  <--
+..##..###
+#....#..#
+
+-----------------------------------------------------------------------
+2e pattern, aanpassing 1 (2e rij, 5e karakter, H is nu # , was een .)
+
+resultaat:
+- 1 horizontale reflectielijn
+
+#...##..#  <--
+#...H#..#  <--
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#
+
+-------------------------------------------------------------------------
+2e pattern, aanpassing 2 (1e rij, 5e karakter, O is nu een ., was een #)
+
+resultaat:
+- 1 horizontale reflectielijn
+- 1 vertikale reflectielijn
+
+  ||
+#...O#..#  <--
+#....#..#  <--
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#
+
