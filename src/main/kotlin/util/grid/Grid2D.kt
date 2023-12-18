@@ -243,8 +243,10 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
 //                    print(" $value ")
 //                }
                 if (cursor?.isAt(rowNo, colNo) == true) {
+                    print(">$value<")
+                } else if (cursor != null && cursor.hasVisited(rowNo, colNo)) {
                     print("[$value]")
-                } else if (visitedCoordinates.containsKey(Coordinate(rowNo, colNo))) {
+                } else if (cursor == null && visitedCoordinates.containsKey(Coordinate(rowNo, colNo))) {
                     print("($value)")
                 } else {
                     print(" $value ")

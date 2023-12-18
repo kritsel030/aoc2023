@@ -1,8 +1,8 @@
 package util.grid
 
-class VisitedCoordinate (val coordinate: Coordinate, val travelledDirection: Direction? = null, val travelledDistance:Int? = null){
+class VisitedCoordinate<T> (val coordinate: Coordinate, val travelledDirection: Direction? = null, val travelledDistance:Int? = null, val value:T){
     override fun toString() : String {
-        return "{coordinate=$coordinate, travelledDirection=$travelledDirection, travelledDistance=$travelledDistance}"
+        return "{coordinate=$coordinate, value=$value, travelledDirection=$travelledDirection, travelledDistance=$travelledDistance}"
     }
 
     fun print() {

@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
 class P18_Solver : BaseSolver() {
 
     override fun getPuzzleName(): String {
-        return "dig"
+        return "lagoon dig"
     }
 
     // answer: 68115
@@ -137,7 +137,7 @@ class P18_Solver : BaseSolver() {
         return grid.count('#') + grid.count('%')
     }
 
-    fun markInner(grid:Grid2D<Char>, path:List<VisitedCoordinate>, borderValue: Char, innerValue:Char) {
+    fun markInner(grid:Grid2D<Char>, path:List<VisitedCoordinate<Char>>, borderValue: Char, innerValue:Char) {
         path.forEachIndexed { index, pathElem ->
             if (index == path.size - 1 || !sharpCornerComingUp(path[index], path[index+1])) {
                 val look:Direction = when (pathElem.travelledDirection) {
@@ -185,14 +185,14 @@ class P18_Solver : BaseSolver() {
 //        )
 //    }
 
-    fun sharpCornerComingUp(pathElem1:VisitedCoordinate, pathElem2: VisitedCoordinate) : Boolean {
+    fun sharpCornerComingUp(pathElem1:VisitedCoordinate<Char>, pathElem2: VisitedCoordinate<Char>) : Boolean {
         return ( (pathElem1.travelledDirection == Direction.EAST && pathElem2.travelledDirection == Direction.SOUTH)
                 || (pathElem1.travelledDirection == Direction.SOUTH && pathElem2.travelledDirection == Direction.WEST)
                 || (pathElem1.travelledDirection == Direction.WEST && pathElem2.travelledDirection == Direction.NORTH)
                 || (pathElem1.travelledDirection == Direction.NORTH && pathElem2.travelledDirection == Direction.EAST))
     }
 
-    fun bluntCornerComingUp(pathElem1:VisitedCoordinate, pathElem2: VisitedCoordinate) : Boolean {
+    fun bluntCornerComingUp(pathElem1:VisitedCoordinate<Char>, pathElem2: VisitedCoordinate<Char>) : Boolean {
         return ( (pathElem1.travelledDirection == Direction.EAST && pathElem2.travelledDirection == Direction.NORTH)
                 || (pathElem1.travelledDirection == Direction.SOUTH && pathElem2.travelledDirection == Direction.EAST)
                 || (pathElem1.travelledDirection == Direction.WEST && pathElem2.travelledDirection == Direction.SOUTH)

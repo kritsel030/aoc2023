@@ -9,12 +9,13 @@ open class Cursor<T>(
     var pathStrategy:CursorPathStrategy = CursorPathStrategy.FULL_PATH,
     var gridStrategy: CursorGridStrategy = CursorGridStrategy.REGISTER_VISITED) {
 
-    var path = mutableListOf<VisitedCoordinate>()
+    var path = mutableListOf<VisitedCoordinate<T>>()
+    var costs = 0
 
     init {
         when (pathStrategy) {
-            CursorPathStrategy.FULL_PATH -> path.add(VisitedCoordinate(currentCoordinate, startDirection))
-            CursorPathStrategy.LATEST_ONLY -> path.add(VisitedCoordinate(currentCoordinate, startDirection))
+            CursorPathStrategy.FULL_PATH -> path.add(VisitedCoordinate<T>(currentCoordinate, startDirection, null, grid.getValue(currentCoordinate)))
+            CursorPathStrategy.LATEST_ONLY -> path.add(VisitedCoordinate<T>(currentCoordinate, startDirection, null, grid.getValue(currentCoordinate)))
             else -> {}
         }
         when (gridStrategy) {
@@ -98,11 +99,11 @@ open class Cursor<T>(
                 when (pathStrategy) {
                     CursorPathStrategy.FULL_PATH ->
                         // add to the start of the path, so the path starts at the most recent element and reads backwards
-                        path.add(0, VisitedCoordinate(currentCoordinate, direction, distance))
+                        path.add(0, VisitedCoordinate<T>(currentCoordinate, direction, distance, grid.getValue(currentCoordinate)))
 
                     CursorPathStrategy.LATEST_ONLY ->
                         // overwrite the current single path entry
-                        path.set(0, VisitedCoordinate(currentCoordinate, direction, distance))
+                        path.set(0, VisitedCoordinate<T>(currentCoordinate, direction, distance, grid.getValue(currentCoordinate)))
 
                     else -> {}
                 }
