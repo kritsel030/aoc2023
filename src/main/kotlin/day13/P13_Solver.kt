@@ -142,24 +142,6 @@ class P13_Solver : BaseSolver() {
         return mirrorFound
     }
 
-    fun chunkInput(inputLines: List<String>) : MutableList<MutableList<String>> {
-        val newInputLines = inputLines.toMutableList()
-        newInputLines.add("")
-
-        var result:MutableList<MutableList<String>> = mutableListOf()
-        var currentGroup = mutableListOf<String>()
-        newInputLines.forEach {
-            if (it.trim().isEmpty()) {
-                if (!currentGroup.isEmpty()) {
-                    result.add(currentGroup)
-                    currentGroup = mutableListOf()
-                }
-            } else {
-                currentGroup.add(it)
-            }
-        }
-        return result
-    }
 }
 
 

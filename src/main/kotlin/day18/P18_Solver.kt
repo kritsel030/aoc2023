@@ -9,7 +9,7 @@ import kotlin.IllegalArgumentException
 import kotlin.math.min
 
 fun main(args: Array<String>) {
-    P18_Solver().solve(INPUT_VARIANT.EXAMPLE, Part.PART1)
+    P18_Solver().solve(INPUT_VARIANT.REAL)
 }
 
 class P18_Solver : BaseSolver() {
