@@ -21,26 +21,26 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
 
     var visitedCoordinates: MutableMap<Coordinate, MutableMap<Any, Any>> = mutableMapOf()
 
-    fun rowCount(): Int {
+    open fun rowCount(): Int {
         return gridValues.size
     }
 
-    fun colCount(): Int {
+    open fun colCount(): Int {
         return if (gridValues.isEmpty()) 0 else gridValues[0].size
     }
 
-    fun size(orientation: ORIENTATION): Int {
+    open fun size(orientation: ORIENTATION): Int {
         return when (orientation) {
             ORIENTATION.HORIZONTAL -> rowCount()
             ORIENTATION.VERTICAL -> colCount()
         }
     }
 
-    fun getValue(coordinate: Coordinate): T {
+    open fun getValue(coordinate: Coordinate): T {
         return getValue(coordinate.rowNo, coordinate.colNo)
     }
 
-    fun getValue(rowNo: Int, colNo: Int): T {
+    open fun getValue(rowNo: Int, colNo: Int): T {
         if (isValidPosition(rowNo, colNo)) {
             val effectiveRowNo = rowNo - indexBase
             val effectiveColNo = colNo - indexBase
@@ -50,11 +50,11 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    fun setValue(coordinate: Coordinate, value: T) {
+    open fun setValue(coordinate: Coordinate, value: T) {
         setValue(coordinate.rowNo, coordinate.colNo, value)
     }
 
-    fun setValue(rowNo: Int, colNo: Int, value: T) {
+    open fun setValue(rowNo: Int, colNo: Int, value: T) {
         if (isValidPosition(rowNo, colNo)) {
             val effectiveRowNo = rowNo - indexBase
             val effectiveColNo = colNo - indexBase
@@ -64,17 +64,17 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    fun getRowValues(rowNo: Int): MutableList<T> {
+    open fun getRowValues(rowNo: Int): MutableList<T> {
         val effectiveRowNo = rowNo - indexBase
         return gridValues[effectiveRowNo]
     }
 
-    fun getColumnValues(colNo: Int): MutableList<T> {
+    open fun getColumnValues(colNo: Int): MutableList<T> {
         val effectiveColNo = colNo - indexBase
         return gridValues.map { it[effectiveColNo] }.toMutableList()
     }
 
-    fun getValues(orientation: ORIENTATION, id: Int): MutableList<T> {
+    open fun getValues(orientation: ORIENTATION, id: Int): MutableList<T> {
         return when (orientation) {
             ORIENTATION.HORIZONTAL -> getRowValues(id)
             ORIENTATION.VERTICAL -> getColumnValues(id)
@@ -85,7 +85,7 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         return isValidPosition(coordinate.rowNo, coordinate.colNo)
     }
 
-    fun isValidPosition(rowNo: Int, colNo: Int): Boolean {
+    open fun isValidPosition(rowNo: Int, colNo: Int): Boolean {
 //        println("Grid2D.isValidPosition ${rowNo} + ${colNo}")
         val effectiveRowNo = rowNo - indexBase
         val effectiveColNo = colNo - indexBase
@@ -199,18 +199,18 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         visitedCoordinates = mutableMapOf()
     }
 
-    fun find(value: T): List<Coordinate> {
+    open fun find(value: T): List<Coordinate> {
         return (0 until rowCount())
             .map { rowNo ->
                 getRowValues(rowNo)
-                    .mapIndexed { colNo, value -> if (value == value) Coordinate(rowNo, colNo) else null }
+                    .mapIndexed { colNo, gridValue -> if (gridValue == value) Coordinate(rowNo, colNo) else null }
                     .filterNotNull()
                     .toList()
             }
             .flatten()
     }
 
-    fun count(value: T): Int {
+    open fun count(value: T): Int {
         return (0 until rowCount())
             .map { rowNo ->
                 getRowValues(rowNo)
@@ -219,7 +219,7 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             .sum()
     }
 
-    fun print(cursor:Cursor<T>? = null) {
+    fun print(cursor:GridCursor<T>? = null) {
         // column index line
         print("    ")
         (0+indexBase..gridValues[0].size-1+indexBase).forEach {  print(it.absoluteValue.toString().padStart(2, ' ') + " ") }

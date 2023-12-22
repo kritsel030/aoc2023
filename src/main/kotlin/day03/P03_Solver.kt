@@ -121,21 +121,21 @@ class P03_Solver : BaseSolver() {
         var neighbours = mutableListOf<Coordinate>()
         // A. start coordinate
         // determine coordinates of its valid Western neighbours
-        val startCoordinate = Cursor<Char> (grid, number.first)
+        val startCoordinate = GridCursor<Char> (grid, number.first)
         neighbours.addAll(startCoordinate.getNeighbours(listOf(Direction.NORTHWEST, Direction.WEST, Direction.SOUTHWEST)).values)
 
 
         // B. end coordinate
         // // determine coordinates of its valid Eastern neighbours
         val endCoordinate =
-            Cursor<Char>(grid, Coordinate(number.first.rowNo, number.first.colNo + number.second - 1))
+            GridCursor<Char>(grid, Coordinate(number.first.rowNo, number.first.colNo + number.second - 1))
         neighbours.addAll(endCoordinate.getNeighbours(listOf(Direction.NORTHEAST, Direction.EAST, Direction.SOUTHEAST)).values)
 
         // C. each coordinate
         // determine coordinates of its valid North and South neighbours
         val directions = listOf(Direction.NORTH, Direction.SOUTH)
         (0 until number.second).forEach {
-            val cursor = Cursor<Char> (grid, Coordinate(number.first.rowNo, number.first.colNo + it))
+            val cursor = GridCursor<Char> (grid, Coordinate(number.first.rowNo, number.first.colNo + it))
             neighbours.addAll(cursor.getNeighbours(directions).values)
         }
         return neighbours

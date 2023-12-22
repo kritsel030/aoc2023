@@ -89,7 +89,7 @@ class GridTest {
     // test that it doesn't throw an exception
     @Test
     fun printWithCursorTest() {
-        val cursor = Cursor(GRID_1_INDEX, Coordinate (2, 3))
+        val cursor = GridCursor(GRID_1_INDEX, Coordinate (2, 3))
         GRID_1_INDEX.print(cursor)
         println()
     }
@@ -97,7 +97,7 @@ class GridTest {
     // test that it doesn't throw an exception
     @Test
     fun printWithCursorAndPathTest() {
-        val cursor = Cursor(GRID_1_INDEX, Coordinate (1, 3))
+        val cursor = GridCursor(GRID_1_INDEX, Coordinate (1, 3))
         cursor.move(Direction.SOUTH, 1)
         cursor.move(Direction.WEST, 1)
         GRID_1_INDEX.print(cursor)

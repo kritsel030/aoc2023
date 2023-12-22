@@ -3,7 +3,7 @@ package day17
 import base.BaseSolver
 import base.INPUT_VARIANT
 import util.grid.Coordinate
-import util.grid.Cursor
+import util.grid.GridCursor
 import util.grid.Direction
 import util.grid.Grid2DFactory
 import java.lang.IllegalArgumentException
@@ -19,7 +19,7 @@ class P17_Solver : BaseSolver() {
     }
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val grid = Grid2DFactory.initIntGrid(inputLines)
-        val crucible = Cursor(grid, Coordinate(0, 0), Direction.EAST)
+        val crucible = GridCursor(grid, Coordinate(0, 0), Direction.EAST)
         crucible.grid.visitedCoordinates[crucible.currentCoordinate]!!["lowest_costs"] = 0
         val cheapestPath = crucible.getNeighbours().keys
             .map { moveCrusible(crucible.clone(), it) }
@@ -38,7 +38,7 @@ class P17_Solver : BaseSolver() {
         return "TODO"
     }
 
-    fun moveCrusible(crucible:Cursor<Int>, direction: Direction, depth:Int=0) : Cursor<Int>? {
+    fun moveCrusible(crucible:GridCursor<Int>, direction: Direction, depth:Int=0) : GridCursor<Int>? {
         val prefix = (0..depth).map { " " }.joinToString("")
         val newCoord = crucible.currentCoordinate.move(direction)
 //        print("$prefix moveCrucible(${crucible.currentCoordinate}, $direction) to $newCoord")
@@ -87,7 +87,7 @@ class P17_Solver : BaseSolver() {
         }
     }
 
-    private fun newPathCosts(cursor: Cursor<Int>, newCoord: Coordinate? = null) : Int {
+    private fun newPathCosts(cursor: GridCursor<Int>, newCoord: Coordinate? = null) : Int {
         // calculate the costs of the path, ignoring the costs of the start coordinate
         // (start coordinate is the last one in the path)
         var costs = (0 until cursor.path.size - 1).sumOf { cursor.path[it].value }

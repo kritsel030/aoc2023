@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class CursorTest {
+class GridCursorTest {
 
     val INPUT = listOf(
         "abcde",
@@ -19,26 +19,26 @@ class CursorTest {
 
     @Test
     fun constructorTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         assertEquals(1, cursor.path.size)
     }
 
     @Test
     fun canMoveTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         assertFalse(cursor.canMove(Direction.NORTH, 1))
         assertTrue(cursor.canMove(Direction.SOUTH, 2))
     }
 
     @Test
     fun peekTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         assertEquals('l', cursor.peek(Direction.SOUTH, 2))
     }
 
     @Test
     fun moveTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         cursor.move(Direction.SOUTH, 2)
         assertEquals(3, cursor.currentCoordinate.rowNo)
         assertEquals(1, cursor.currentCoordinate.colNo)
@@ -47,20 +47,20 @@ class CursorTest {
 
     @Test
     fun getValueTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         assertEquals('a', cursor.getValue())
     }
 
     @Test
     fun isAtTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         assertTrue(cursor.isAt(1, 1))
         assertFalse(cursor.isAt(1, 2))
     }
 
     @Test
     fun hasVisitedTest() {
-        var cursor = Cursor(GRID_1_INDEX, Coordinate(1, 1))
+        var cursor = GridCursor(GRID_1_INDEX, Coordinate(1, 1))
         cursor.move(Direction.SOUTH, 2)
         assertTrue(cursor.hasVisited(1, 1))
         assertTrue(cursor.hasVisited(3, 1))

@@ -2,14 +2,12 @@ package day18
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import base.Part
 import util.grid.*
 import java.lang.Error
 import kotlin.IllegalArgumentException
-import kotlin.math.min
 
 fun main(args: Array<String>) {
-    P18_Solver().solve(INPUT_VARIANT.REAL)
+    P18_Solver().solve(INPUT_VARIANT.EXAMPLE)
 }
 
 class P18_Solver : BaseSolver() {
@@ -20,6 +18,12 @@ class P18_Solver : BaseSolver() {
 
     // answer: 68115
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
+        solvePart1_v1(inputLines, inputVariant)
+        println("----------------")
+        return solvePart1_v2(inputLines, inputVariant)
+    }
+
+    fun solvePart1_v1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val instructions = inputLines.map {
             val (directionRaw, distanceRaw, _) = it.split(" ")
             val direction = when (directionRaw) {
@@ -61,7 +65,7 @@ class P18_Solver : BaseSolver() {
 
         val grid = Grid2D<Char>(maxRows-minRows+1, maxColumns-minColumns+1, '.')
         try {
-            val cursor = Cursor(grid, Coordinate(-minRows, -minColumns), instructions[0].direction, CursorPathStrategy.FULL_PATH, CursorGridStrategy.REGISTER_VISITED)
+            val cursor = GridCursor(grid, Coordinate(-minRows, -minColumns), instructions[0].direction, CursorPathStrategy.FULL_PATH, CursorGridStrategy.REGISTER_VISITED)
             instructions.forEach{
                 cursor.move(it.direction, it.distance, true, '#')
             }
@@ -78,8 +82,34 @@ class P18_Solver : BaseSolver() {
         return grid.count('#') + grid.count('%')
     }
 
+    fun solvePart1_v2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
+        val cursor = Cursor()
+        inputLines.forEach {
+            val (directionRaw, distanceRaw, _) = it.split(" ")
+            val direction = when (directionRaw) {
+                "U" -> Direction.NORTH
+                "D" -> Direction.SOUTH
+                "L" -> Direction.WEST
+                "R" -> Direction.EAST
+                else -> throw IllegalArgumentException("$directionRaw is an unknown direction")
+            }
+            val distance = distanceRaw.toInt()
+            cursor.move(direction, distance)
+        }
+
+        println(cursor.getGridDimensions())
+
+        val borderLength = cursor.pathLength()
+        println("borderLength: $borderLength")
+        val surfaceWithinBorder = cursor.pathArea()
+        println("surface area within border: $surfaceWithinBorder")
+        println("expected for test: 62")
+        return borderLength + surfaceWithinBorder
+    }
+
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        val instructions = inputLines.map {
+        val cursor = Cursor()
+        inputLines.forEach {
             val distanceHex = it.substring(it.length-7, it.length-2)
             val distance = Integer.decode("0x$distanceHex")
             val direction = when (it[it.length-2]) {
@@ -89,8 +119,18 @@ class P18_Solver : BaseSolver() {
                 '0' -> Direction.EAST
                 else -> throw IllegalArgumentException("${it[it.length-2]} is an unknown direction")
             }
-            Instruction(direction, distance)
+            cursor.move(direction, distance)
         }
+
+        println(cursor.getGridDimensions())
+
+        val borderLength = cursor.pathLength()
+        println("borderLength: $borderLength")
+        val surfaceWithinBorder = cursor.pathArea()
+        println("surface area within border: $surfaceWithinBorder")
+        println("expected for test: 952408144115")
+        return cursor.pathLength() + cursor.pathArea()
+        /*
         var columnCount = 0
         var maxColumns = 0
         var minColumns = 0
@@ -119,7 +159,7 @@ class P18_Solver : BaseSolver() {
 
         val grid = Grid2D<Char>(maxRows-minRows+1, maxColumns-minColumns+1, '.')
         try {
-            val cursor = Cursor(grid, Coordinate(-minRows, -minColumns), instructions[0].direction, CursorPathStrategy.FULL_PATH, CursorGridStrategy.NO_VISITED)
+            val cursor = GridCursor(grid, Coordinate(-minRows, -minColumns), instructions[0].direction, CursorPathStrategy.FULL_PATH, CursorGridStrategy.NO_VISITED)
             instructions.forEach{
                 cursor.move(it.direction, it.distance, true, '#')
             }
@@ -135,9 +175,11 @@ class P18_Solver : BaseSolver() {
         }
 
         return grid.count('#') + grid.count('%')
+
+         */
     }
 
-    fun markInner(grid:Grid2D<Char>, path:List<VisitedCoordinate<Char>>, borderValue: Char, innerValue:Char) {
+    fun markInner(grid:Grid2D<Char>, path:List<VisitedGridCoordinate<Char>>, borderValue: Char, innerValue:Char) {
         path.forEachIndexed { index, pathElem ->
             if (index == path.size - 1 || !sharpCornerComingUp(path[index], path[index+1])) {
                 val look:Direction = when (pathElem.travelledDirection) {
@@ -185,14 +227,14 @@ class P18_Solver : BaseSolver() {
 //        )
 //    }
 
-    fun sharpCornerComingUp(pathElem1:VisitedCoordinate<Char>, pathElem2: VisitedCoordinate<Char>) : Boolean {
+    fun sharpCornerComingUp(pathElem1:VisitedGridCoordinate<Char>, pathElem2: VisitedGridCoordinate<Char>) : Boolean {
         return ( (pathElem1.travelledDirection == Direction.EAST && pathElem2.travelledDirection == Direction.SOUTH)
                 || (pathElem1.travelledDirection == Direction.SOUTH && pathElem2.travelledDirection == Direction.WEST)
                 || (pathElem1.travelledDirection == Direction.WEST && pathElem2.travelledDirection == Direction.NORTH)
                 || (pathElem1.travelledDirection == Direction.NORTH && pathElem2.travelledDirection == Direction.EAST))
     }
 
-    fun bluntCornerComingUp(pathElem1:VisitedCoordinate<Char>, pathElem2: VisitedCoordinate<Char>) : Boolean {
+    fun bluntCornerComingUp(pathElem1:VisitedGridCoordinate<Char>, pathElem2: VisitedGridCoordinate<Char>) : Boolean {
         return ( (pathElem1.travelledDirection == Direction.EAST && pathElem2.travelledDirection == Direction.NORTH)
                 || (pathElem1.travelledDirection == Direction.SOUTH && pathElem2.travelledDirection == Direction.EAST)
                 || (pathElem1.travelledDirection == Direction.WEST && pathElem2.travelledDirection == Direction.SOUTH)

@@ -5,7 +5,6 @@ import base.INPUT_VARIANT
 import base.Part
 import util.grid.*
 import java.lang.Error
-import java.lang.NullPointerException
 import kotlin.math.max
 
 fun main(args: Array<String>) {
@@ -25,7 +24,7 @@ class P16_Solver : BaseSolver() {
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         (1..1).forEach {
             val grid = Grid2DFactory.initCharGrid(inputLines)
-            val cursor: Cursor<Char> = Cursor(grid, Coordinate(7, 0), Direction.EAST, CursorPathStrategy.LATEST_ONLY)
+            val cursor: GridCursor<Char> = GridCursor(grid, Coordinate(7, 0), Direction.EAST, CursorPathStrategy.LATEST_ONLY)
             try {
                 println("start cursor: $cursor")
                 moveBeam(cursor, NEXT_DIRECTIONS[Pair(Direction.EAST, cursor.getValue())]!!.first())
@@ -93,7 +92,7 @@ class P16_Solver : BaseSolver() {
 
         val maxWest = (0 until grid.rowCount())
             .maxOf { rowNo ->
-                val cursor:Cursor<Char> = Cursor(grid, Coordinate(rowNo, grid.colCount()-1), Direction.WEST, CursorPathStrategy.LATEST_ONLY)
+                val cursor:GridCursor<Char> = GridCursor(grid, Coordinate(rowNo, grid.colCount()-1), Direction.WEST, CursorPathStrategy.LATEST_ONLY)
                 println("cursor: $cursor")
                 moveBeam(cursor, NEXT_DIRECTIONS[Pair(Direction.WEST, cursor.getValue())]!!.first())
                 val result = grid.visitedCoordinates.size
@@ -107,7 +106,7 @@ class P16_Solver : BaseSolver() {
 
     var maxDepth = 0
     var currentDepth = 0
-    fun moveBeam(cursorIn:Cursor<Char>, direction: Direction, depth:Int=0) {
+    fun moveBeam(cursorIn:GridCursor<Char>, direction: Direction, depth:Int=0) {
         maxDepth = max(depth, maxDepth)
         currentDepth = depth
         moveBeamCounter++
@@ -128,7 +127,7 @@ class P16_Solver : BaseSolver() {
         }
     }
 
-    private fun canCursorMoveInDirection(cursor:Cursor<Char>, direction:Direction) : Boolean{
+    private fun canCursorMoveInDirection(cursor:GridCursor<Char>, direction:Direction) : Boolean{
         return cursor.canMove(direction) && !cursor.grid.isVisited(
             cursor.currentCoordinate.move(direction),
             direction

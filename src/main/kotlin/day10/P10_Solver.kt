@@ -2,7 +2,6 @@ package day10
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import day07.CardType
 import util.grid.*
 import java.lang.IllegalStateException
 
@@ -64,7 +63,7 @@ class P10_Solver : BaseSolver() {
 //
 //}
 
-class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : Cursor<Char>(grid, startCoordinate) {
+class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : GridCursor<Char>(grid, startCoordinate) {
 
     fun move() {
 //        println("move")
@@ -103,7 +102,7 @@ class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : Cursor<Char>(g
         return result!!
     }
 
-    fun okMove(direction: Direction, distance: Int? = 1): Boolean {
+    fun okMove(direction: Direction, distance: Int = 1): Boolean {
         val canLeaveCurrent = TileSymbol[getValue()]!!.directions.contains(direction)
         val canEnterNext = super.canMove(direction, distance) &&
         when (direction) {

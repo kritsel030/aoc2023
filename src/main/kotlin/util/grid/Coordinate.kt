@@ -8,27 +8,26 @@ open class Coordinate(val rowNo:Int, val colNo:Int) {
         val NESW = arrayOf(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
     }
 
-    fun move(direction:Direction, distance:Int? = 1) : Coordinate{
+    fun move(direction:Direction, distance:Int = 1) : Coordinate{
 //        println("Position.move ${rowNo} + ${colNo}")
-        val dist = distance?:0
         return when(direction) {
-            Direction.NORTHWEST -> Coordinate(rowNo-dist, colNo-dist)
-            Direction.NORTH -> Coordinate(rowNo-dist, colNo)
-            Direction.NORTHEAST -> Coordinate(rowNo-dist, colNo+dist)
-            Direction.EAST  -> Coordinate(rowNo, colNo+dist)
-            Direction.SOUTHEAST -> Coordinate(rowNo+dist, colNo+dist)
-            Direction.SOUTH -> Coordinate(rowNo+dist, colNo)
-            Direction.SOUTHWEST -> Coordinate(rowNo+dist, colNo-dist)
-            Direction.WEST  -> Coordinate(rowNo, colNo-dist)
+            Direction.NORTHWEST -> Coordinate(rowNo-distance, colNo-distance)
+            Direction.NORTH -> Coordinate(rowNo-distance, colNo)
+            Direction.NORTHEAST -> Coordinate(rowNo-distance, colNo+distance)
+            Direction.EAST  -> Coordinate(rowNo, colNo+distance)
+            Direction.SOUTHEAST -> Coordinate(rowNo+distance, colNo+distance)
+            Direction.SOUTH -> Coordinate(rowNo+distance, colNo)
+            Direction.SOUTHWEST -> Coordinate(rowNo+distance, colNo-distance)
+            Direction.WEST  -> Coordinate(rowNo, colNo-distance)
         }
     }
 
-    fun findNeighbours(includeDiagonalNeighbours:Boolean? = false, distance:Int? = 1) : Map<Direction, Coordinate> {
+    fun findNeighbours(includeDiagonalNeighbours:Boolean? = false, distance:Int = 1) : Map<Direction, Coordinate> {
         val directions = if (includeDiagonalNeighbours == true) Direction.values() else NESW
         return findNeighbours(directions.toList(), distance)
     }
 
-    fun findNeighbours(directions:List<Direction>, distance:Int? = 1) : Map<Direction, Coordinate> {
+    fun findNeighbours(directions:List<Direction>, distance:Int = 1) : Map<Direction, Coordinate> {
         return directions.map { it to move(it, distance) }.toMap()
     }
 
