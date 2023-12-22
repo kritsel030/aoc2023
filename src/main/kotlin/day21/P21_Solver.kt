@@ -7,7 +7,7 @@ import util.grid.Grid2DFactory
 import util.grid.InfiniteGrid
 
 fun main(args: Array<String>) {
-    P21_Solver().solve(INPUT_VARIANT.REAL)
+    P21_Solver().solve(INPUT_VARIANT.EXAMPLE)
 }
 
 class P21_Solver : BaseSolver() {
@@ -42,6 +42,20 @@ class P21_Solver : BaseSolver() {
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val grid = Grid2DFactory.initInfiniteCharGrid(inputLines)
         println("pattern rows: ${grid.patternRowCount()}, pattern columns: ${grid.patternColCount()}")
+
+        var previouslyReachedGardenPlots = grid.findInPattern('S').toSet()
+
+        val cycles = 500
+        (0 until cycles).forEach { step ->
+            // lets see what we can reach from here
+            var reachedGardenPlots = previouslyReachedGardenPlots
+                .flatMap { it.findNeighbours().values.filter { neighbour ->grid.getValue(neighbour) != '#'}}
+                .toSet()
+//            println("after cycle $step: reached ${reachedGardenPlots.size} garden plots")
+            previouslyReachedGardenPlots = reachedGardenPlots
+        }
+
+        println("after cycle $cycles: reached ${previouslyReachedGardenPlots.size} garden plots")
 
 //        val gizmo = initGizmo(grid)
 //        gizmo.forEach { (key, value) ->
