@@ -1,3 +1,6 @@
+***********************************************************************
+* Part 1
+***********************************************************************
 
 2e pattern origineel
 
@@ -9,11 +12,18 @@
 ..##..###
 #....#..#
 
+***********************************************************************
+* Part 2
+***********************************************************************
+
+In each pattern, you'll need to locate and fix the smudge that causes a different reflection line to be valid.
+(The old reflection line won't necessarily continue being valid after the smudge is fixed.)
+
 -----------------------------------------------------------------------
 2e pattern, aanpassing 1 (2e rij, 5e karakter, H is nu # , was een .)
 
 resultaat:
-- 1 horizontale reflectielijn
+- 1 horizontale reflectielijn (wordt in uitleg genoemd)
 
 #...##..#  <--
 #...H#..#  <--
@@ -24,14 +34,14 @@ resultaat:
 #....#..#
 
 -------------------------------------------------------------------------
-2e pattern, aanpassing 2 (1e rij, 5e karakter, O is nu een ., was een #)
+2e pattern, aanpassing 2 (1e rij, 5e karakter, P is nu een ., was een #)
 
 resultaat:
-- 1 horizontale reflectielijn
-- 1 vertikale reflectielijn
+- 1 horizontale reflectielijn (wordt in uitleg genoemd)
+- 1 vertikale reflectielijn (wordt NIET in uitleg genoemd)
 
   ||
-#...O#..#  <--
+#...P#..#  <--
 #....#..#  <--
 ..##..###
 #####.##.
