@@ -219,6 +219,42 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             .sum()
     }
 
+    // TODO:
+    // when the cursorpath consists of elements with distance > 1
+    fun borderFill(cursor:GridCursor<T>, clockWisePath:Boolean, borderValue:T, fillValue:T) {
+        val path = cursor.path.reversed()
+        path.forEachIndexed { index, pathElem ->
+            if (pathElem.travelledDirection == Direction.NORTH || (index < path.size-1 && path[index + 1].travelledDirection == Direction.NORTH)) {
+                var nextCoordinate = pathElem.coordinate
+                while (true) {
+                    // continue filling up the tiles to the EAST of the current coordinate,
+                    // until you reach a border tile
+                    val fillDirection = if (clockWisePath) Direction.EAST else Direction.WEST
+                    nextCoordinate = nextCoordinate.move(fillDirection)
+                    if (this.isValidPosition(nextCoordinate) && this.getValue(nextCoordinate) != borderValue) {
+                        this.setValue(nextCoordinate, fillValue)
+                    } else {
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+
+    // untested
+//    fun floodFill(start:Coordinate, border:T, fill:T) {
+//        var tilesToFill = listOf(start)
+//        while (tilesToFill.isNotEmpty()) {
+//            tilesToFill.forEach { setValue(it, fill) }
+//            tilesToFill = tilesToFill.flatMap {
+//                it.findNeighbours().values
+//                    .filter { isValidPosition(it) }
+//                    .filter { getValue(it) != border && getValue(it) != fill }
+//            }
+//        }
+//    }
+
     fun print(cursor:GridCursor<T>? = null) {
         // column index line
         print("    ")
@@ -235,13 +271,6 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             print(rowNo.absoluteValue.toString().padStart(2, ' ') + "| ")
             colValues.forEachIndexed { colIndex, value ->
                 val colNo = colIndex + indexBase
-//                if (cursor?.isAt(rowNo, colNo) == true) {
-//                    print("[$value]")
-//                } else if (cursor?.hasVisited(rowNo, colNo) == true) {
-//                    print("($value)")
-//                } else {
-//                    print(" $value ")
-//                }
                 if (cursor?.isAt(rowNo, colNo) == true) {
                     print(">$value<")
                 } else if (cursor != null && cursor.hasVisited(rowNo, colNo)) {

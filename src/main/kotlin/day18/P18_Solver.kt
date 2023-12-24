@@ -18,7 +18,8 @@ class P18_Solver : BaseSolver() {
 
     // answer: 68115
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        solvePart1_v1(inputLines, inputVariant)
+        val answer_v1 = solvePart1_v1(inputLines, inputVariant)
+        println("answer v1: $answer_v1")
         println("----------------")
         return solvePart1_v2(inputLines, inputVariant)
     }
@@ -72,7 +73,8 @@ class P18_Solver : BaseSolver() {
 
 //            grid.print()
 
-            markInner(grid, cursor.path.reversed(), '#','%')
+            //markInner(grid, cursor.path.reversed(), '#','%')
+            grid.borderFill(cursor, true, '#', '%')
         } catch(e:Error) {
             throw e
         } finally {
@@ -181,18 +183,12 @@ class P18_Solver : BaseSolver() {
 
     fun markInner(grid:Grid2D<Char>, path:List<VisitedGridCoordinate<Char>>, borderValue: Char, innerValue:Char) {
         path.forEachIndexed { index, pathElem ->
-            if (index == path.size - 1 || !sharpCornerComingUp(path[index], path[index+1])) {
-                val look:Direction = when (pathElem.travelledDirection) {
-                    Direction.NORTH -> Direction.EAST
-                    Direction.SOUTH -> Direction.WEST
-                    Direction.EAST -> Direction.SOUTH
-                    Direction.WEST -> Direction.NORTH
-                    else -> throw IllegalArgumentException("${pathElem.travelledDirection} not supported")
-                }
-
+            if (pathElem.travelledDirection == Direction.NORTH || path[index+1].travelledDirection == Direction.NORTH) {
                 var nextCoordinate = pathElem.coordinate
                 while (true) {
-                    nextCoordinate = nextCoordinate.move(look)
+                    // continue filling up the tiles to the EAST of the current coordinate,
+                    // until you reach a border tile
+                    nextCoordinate = nextCoordinate.move(Direction.EAST)
                     if (grid.isValidPosition(nextCoordinate) && grid.getValue(nextCoordinate) != borderValue) {
                         grid.setValue(nextCoordinate, innerValue)
                     } else {
@@ -200,25 +196,44 @@ class P18_Solver : BaseSolver() {
                     }
                 }
             }
-
-            if (index != path.size-1 && bluntCornerComingUp(path[index], path[index+1])) {
-                val look:Direction = when (path[index+1].travelledDirection) {
-                    Direction.NORTH -> Direction.EAST
-                    Direction.SOUTH -> Direction.WEST
-                    Direction.EAST -> Direction.SOUTH
-                    Direction.WEST -> Direction.NORTH
-                    else -> throw IllegalArgumentException("${path[index+1].travelledDirection} not supported")
-                }
-                var nextCoordinate = pathElem.coordinate
-                while (true) {
-                    nextCoordinate = nextCoordinate.move(look)
-                    if (grid.isValidPosition(nextCoordinate) && grid.getValue(nextCoordinate) != borderValue) {
-                        grid.setValue(nextCoordinate, innerValue)
-                    } else {
-                        break
-                    }
-                }
-            }
+//            if (index == path.size - 1 || !sharpCornerComingUp(path[index], path[index+1])) {
+//                val fillDirection:Direction = when (pathElem.travelledDirection) {
+//                    Direction.NORTH -> Direction.EAST
+//                    Direction.SOUTH -> Direction.WEST
+//                    Direction.EAST -> Direction.SOUTH
+//                    Direction.WEST -> Direction.NORTH
+//                    else -> throw IllegalArgumentException("${pathElem.travelledDirection} not supported")
+//                }
+//
+//                var nextCoordinate = pathElem.coordinate
+//                while (true) {
+//                    nextCoordinate = nextCoordinate.move(fillDirection)
+//                    if (grid.isValidPosition(nextCoordinate) && grid.getValue(nextCoordinate) != borderValue) {
+//                        grid.setValue(nextCoordinate, innerValue)
+//                    } else {
+//                        break
+//                    }
+//                }
+//            }
+//
+//            if (index != path.size-1 && bluntCornerComingUp(path[index], path[index+1])) {
+//                val look:Direction = when (path[index+1].travelledDirection) {
+//                    Direction.NORTH -> Direction.EAST
+//                    Direction.SOUTH -> Direction.WEST
+//                    Direction.EAST -> Direction.SOUTH
+//                    Direction.WEST -> Direction.NORTH
+//                    else -> throw IllegalArgumentException("${path[index+1].travelledDirection} not supported")
+//                }
+//                var nextCoordinate = pathElem.coordinate
+//                while (true) {
+//                    nextCoordinate = nextCoordinate.move(look)
+//                    if (grid.isValidPosition(nextCoordinate) && grid.getValue(nextCoordinate) != borderValue) {
+//                        grid.setValue(nextCoordinate, innerValue)
+//                    } else {
+//                        break
+//                    }
+//                }
+//            }
         }
     }
 //    companion object {

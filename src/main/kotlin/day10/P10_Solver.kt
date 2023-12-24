@@ -21,24 +21,8 @@ class P10_Solver : BaseSolver() {
         val pipeGrid = Grid2DFactory.initCharGrid(inputLines)
 
         // find the start position
-        var startCoordinate:Coordinate? = null
-        for (rowNo in 0 until pipeGrid.gridValues.size) {
-            for (colNo in 0 until pipeGrid.gridValues[0].size) {
-                if (pipeGrid.getValue(rowNo, colNo) == 'S') {
-                    startCoordinate = Coordinate(rowNo, colNo)
-                    break
-                }
-            }
-            if (startCoordinate != null)
-                break
-        }
-
-        // check if we've found the start coordinate
-        if (startCoordinate == null) {
-            throw IllegalStateException("we haven't found the start coordinate yet")
-        } else {
+        val startCoordinate:Coordinate = pipeGrid.find('S').first()
 //            println("start coordinate: $startCoordinate")
-        }
 
         // now start moving until we're back at Start again
         val cursor = PipeCursor(pipeGrid, startCoordinate!!)
@@ -48,24 +32,48 @@ class P10_Solver : BaseSolver() {
                 break
         }
 
-//        println("path length: ${cursor.path.size}")
-
+        pipeGrid.print(cursor)
         return cursor.path.size/2
 
     }
 
+    // answer: 523
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        return "TODO"
+        // initialized the grid
+        val pipeGrid = Grid2DFactory.initCharGrid(inputLines)
+
+        // find the start position
+        val startCoordinate:Coordinate = pipeGrid.find('S').first()
+//            println("start coordinate: $startCoordinate")
+
+        // now start moving until we're back at Start again
+        val cursor = PipeCursor(pipeGrid, startCoordinate!!)
+        val borderChar = '#'
+        while (true) {
+            cursor.move()
+            if (cursor.getValue() == 'S')
+                break
+        }
+
+        // replace all visited coordinates by #
+        cursor.path.map { it.coordinate }.forEach { c -> pipeGrid.setValue(c, borderChar) }
+
+        // fill tiles enclosed by the pipes
+        // (cheating a bit by setting the clockWisePath parameter to true as I know that will yield
+        //  the correct answer)
+        val fillChar = 'O'
+        pipeGrid.borderFill(cursor, true, borderChar, fillChar )
+        pipeGrid.print()
+
+        return pipeGrid.count(fillChar)
+
     }
 }
 
-//class PipeGrid(input:MutableList<MutableList<Char>>) : Grid2D<Char>(input) {
-//
-//}
 
 class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : GridCursor<Char>(grid, startCoordinate) {
 
-    fun move() {
+    fun move(visitedCoordinatesMark:Char? = null) {
 //        println("move")
         val latestDirection = latestDirection()
         val moveDirection = when (latestDirection) {
@@ -77,7 +85,7 @@ class PipeCursor(grid:Grid2D<Char>, startCoordinate:Coordinate) : GridCursor<Cha
             else -> throw IllegalStateException("we shouldn't get here (move function) ")
         }
         if (okMove(moveDirection)) {
-            move(moveDirection)
+            move(moveDirection, 1, false, visitedCoordinatesMark)
 //            println("  moved $moveDirection to ${getValue()} at ${currentCoordinate.rowNo},${currentCoordinate.colNo}")
         } else {
             throw IllegalStateException("We cannot move to $moveDirection, now we're stuck")
