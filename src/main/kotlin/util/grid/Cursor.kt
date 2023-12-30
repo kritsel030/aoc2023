@@ -97,18 +97,12 @@ class Cursor(
                 .sumOf {
                     val point = newPath[it].coordinate
                     val nextPoint = newPath[(it + 1) ].coordinate
-                    (point.rowNo * nextPoint.colNo - point.colNo * nextPoint.rowNo).toLong()
+                    val result = (point.rowNo.toLong() * nextPoint.colNo.toLong() - point.colNo.toLong() * nextPoint.rowNo.toLong()).toLong()
+//                    println("shoelace element: $point to $nextPoint -> $result")
+                    result
                 }
         ) / 2
-        println("shoelace area: $area")
-
-        // Picks theorem
-        val corners =  if (path.first().coordinate != path.last().coordinate) path.size else path.size-1
-        println("number of corners: $corners")
-
-        val result =  area + (corners/2) + 1
-        println("area after pick's theorem: $result")
-        return result
+        return area
     }
 }
 

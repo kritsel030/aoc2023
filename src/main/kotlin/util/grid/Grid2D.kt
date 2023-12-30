@@ -36,6 +36,10 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
+    open fun dimensions(): Map<ORIENTATION, Int> {
+        return ORIENTATION.values().associateWith { size(it) }
+    }
+
     open fun getValue(coordinate: Coordinate): T {
         return getValue(coordinate.rowNo, coordinate.colNo)
     }

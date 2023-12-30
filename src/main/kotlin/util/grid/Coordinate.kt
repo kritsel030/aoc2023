@@ -5,7 +5,7 @@ import kotlin.math.absoluteValue
 open class Coordinate(val rowNo:Int, val colNo:Int) {
 
     companion object {
-        val NESW = arrayOf(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)
+        val ESWN = arrayOf(Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH)
     }
 
     fun move(direction:Direction, distance:Int = 1) : Coordinate{
@@ -23,7 +23,7 @@ open class Coordinate(val rowNo:Int, val colNo:Int) {
     }
 
     fun findNeighbours(includeDiagonalNeighbours:Boolean? = false, distance:Int = 1) : Map<Direction, Coordinate> {
-        val directions = if (includeDiagonalNeighbours == true) Direction.values() else NESW
+        val directions = if (includeDiagonalNeighbours == true) Direction.values() else ESWN
         return findNeighbours(directions.toList(), distance)
     }
 

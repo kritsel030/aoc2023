@@ -12,7 +12,7 @@ class Grid2DFactory {
         }
 
         fun initIntGrid(inputLines: List<String>, indexBase:Int = 0) : Grid2D<Int> {
-            return InfiniteGrid(inputLines.map { line -> line.map { it.digitToInt() }.toMutableList() }.toMutableList() , indexBase)
+            return Grid2D(inputLines.map { line -> line.map { it.digitToInt() }.toMutableList() }.toMutableList() , indexBase)
         }
 
         fun initInfiniteIntGrid(inputLines: List<String>, indexBase:Int = 0) : InfiniteGrid<Int> {
