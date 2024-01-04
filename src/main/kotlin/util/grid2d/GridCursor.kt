@@ -1,4 +1,4 @@
-package util.grid
+package util.grid2d
 
 import java.lang.IllegalStateException
 
@@ -73,7 +73,9 @@ open class GridCursor<T>(
                 // move returns a new Coordinate instance
                 currentCoordinate = currentCoordinate.move(direction, distance)
                 if (visitedValue != null) {
-                    grid.setValue(currentCoordinate, visitedValue!!)
+                    if (grid is MutableGrid2D) {
+                        grid.setValue(currentCoordinate, visitedValue!!)
+                    }
                 }
                 when (gridStrategy) {
                     CursorGridStrategy.REGISTER_VISITED -> {

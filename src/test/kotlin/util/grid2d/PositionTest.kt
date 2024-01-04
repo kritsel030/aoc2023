@@ -1,4 +1,4 @@
-package util.grid
+package util.grid2d
 
 import java.lang.Exception
 import kotlin.test.Test

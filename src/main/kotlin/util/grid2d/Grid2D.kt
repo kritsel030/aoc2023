@@ -1,4 +1,4 @@
-package util.grid
+package util.grid2d
 
 import java.lang.IllegalArgumentException
 import kotlin.math.absoluteValue
@@ -6,7 +6,7 @@ import kotlin.math.absoluteValue
 // grid is a list of rows
 // each row is a list of values, each value represents an individual grid value
 // to get the cell value in row 3, column 5: grid[3][5]
-open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:Int = 0) {
+open class Grid2D<T>(var gridValues:List<List<T>>, val indexBase:Int = 0) {
 
     init {
         if (indexBase > 1)
@@ -16,7 +16,7 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
     // initialize a grid of <rowCount> rows and <colCount> columns,
     // where each cell has value <initialValue>
     constructor(rowCount: Int, colCount: Int, initialValue: T, indexBase: Int = 0) :
-            this(MutableList(rowCount) { MutableList(colCount) { initialValue } }, indexBase) {
+            this(List(rowCount) { List(colCount) { initialValue } }, indexBase) {
     }
 
     var visitedCoordinates: MutableMap<Coordinate, MutableMap<Any, Any>> = mutableMapOf()
@@ -54,21 +54,7 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         }
     }
 
-    open fun setValue(coordinate: Coordinate, value: T) {
-        setValue(coordinate.rowNo, coordinate.colNo, value)
-    }
-
-    open fun setValue(rowNo: Int, colNo: Int, value: T) {
-        if (isValidPosition(rowNo, colNo)) {
-            val effectiveRowNo = rowNo - indexBase
-            val effectiveColNo = colNo - indexBase
-            gridValues[effectiveRowNo][effectiveColNo] = value
-        } else {
-            throw IllegalArgumentException("coordinate $rowNo, $colNo is outside the bounds of this grid")
-        }
-    }
-
-    open fun getRowValues(rowNo: Int): MutableList<T> {
+    open fun getRowValues(rowNo: Int): List<T> {
         val effectiveRowNo = rowNo - indexBase
         return gridValues[effectiveRowNo]
     }
@@ -78,7 +64,7 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
         return gridValues.map { it[effectiveColNo] }.toMutableList()
     }
 
-    open fun getValues(orientation: ORIENTATION, id: Int): MutableList<T> {
+    open fun getValues(orientation: ORIENTATION, id: Int): List<T> {
         return when (orientation) {
             ORIENTATION.HORIZONTAL -> getRowValues(id)
             ORIENTATION.VERTICAL -> getColumnValues(id)
@@ -100,77 +86,6 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             return false
         }
         return true
-    }
-
-    fun addRow(rowNo: Int = -1, rowValues: MutableList<T>) {
-        if (rowNo < 0)
-            gridValues.add(rowValues)
-        else {
-            val effectiveRowNo = rowNo - indexBase
-            gridValues.add(effectiveRowNo, rowValues)
-        }
-    }
-
-    fun addRow(rowNo: Int = -1, value: T) {
-        val newRow = MutableList(colCount()) { value }
-        if (rowNo < 0)
-            gridValues.add(newRow)
-        else {
-            val effectiveRowNo = rowNo - indexBase
-            gridValues.add(effectiveRowNo, newRow)
-        }
-    }
-
-    fun addColumn(colNo: Int = -1, colValues: MutableList<T>) {
-        val effectiveColNo = colNo - indexBase
-        gridValues.forEachIndexed { index, row ->
-            row.add(effectiveColNo, colValues[index])
-        }
-    }
-
-    fun addColumn(colNo: Int = -1, value: T) {
-        val effectiveColNo = colNo - indexBase
-        gridValues.forEach { row ->
-            if (effectiveColNo < 0)
-                row.add(value)
-            else {
-                row.add(effectiveColNo, value)
-            }
-        }
-    }
-
-    fun addValues(orientation: ORIENTATION, id: Int, values: MutableList<T>) {
-        when (orientation) {
-            ORIENTATION.HORIZONTAL -> addRow(id, values)
-            ORIENTATION.VERTICAL -> addColumn(id, values)
-        }
-    }
-
-    fun addValues(orientation: ORIENTATION, id: Int, value: T) {
-        when (orientation) {
-            ORIENTATION.HORIZONTAL -> addRow(id, value)
-            ORIENTATION.VERTICAL -> addColumn(id, value)
-        }
-    }
-
-    fun replaceRow(rowNo: Int, row: MutableList<T>) {
-        val effectiveRowNo = rowNo - indexBase
-        gridValues.removeAt(effectiveRowNo)
-        gridValues.add(effectiveRowNo, row)
-    }
-
-    fun replaceColumn(colNo: Int, column: MutableList<T>) {
-        val effectiveColNo = colNo - indexBase
-        gridValues.forEachIndexed { rowNo, row ->
-            row[effectiveColNo] = column[rowNo]
-        }
-    }
-
-    fun replaceValues(orientation: ORIENTATION, id: Int, values: MutableList<T>) {
-        when (orientation) {
-            ORIENTATION.HORIZONTAL -> replaceRow(id, values)
-            ORIENTATION.VERTICAL -> replaceColumn(id, values)
-        }
     }
 
     fun isVisited(coordinate: Coordinate, direction: Direction?): Boolean {
@@ -223,42 +138,6 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             .sum()
     }
 
-    // TODO:
-    // when the cursorpath consists of elements with distance > 1
-    fun borderFill(cursor:GridCursor<T>, clockWisePath:Boolean, borderValue:T, fillValue:T) {
-        val path = cursor.path.reversed()
-        path.forEachIndexed { index, pathElem ->
-            if (pathElem.travelledDirection == Direction.NORTH || (index < path.size-1 && path[index + 1].travelledDirection == Direction.NORTH)) {
-                var nextCoordinate = pathElem.coordinate
-                while (true) {
-                    // continue filling up the tiles to the EAST of the current coordinate,
-                    // until you reach a border tile
-                    val fillDirection = if (clockWisePath) Direction.EAST else Direction.WEST
-                    nextCoordinate = nextCoordinate.move(fillDirection)
-                    if (this.isValidPosition(nextCoordinate) && this.getValue(nextCoordinate) != borderValue) {
-                        this.setValue(nextCoordinate, fillValue)
-                    } else {
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-
-    // untested
-//    fun floodFill(start:Coordinate, border:T, fill:T) {
-//        var tilesToFill = listOf(start)
-//        while (tilesToFill.isNotEmpty()) {
-//            tilesToFill.forEach { setValue(it, fill) }
-//            tilesToFill = tilesToFill.flatMap {
-//                it.findNeighbours().values
-//                    .filter { isValidPosition(it) }
-//                    .filter { getValue(it) != border && getValue(it) != fill }
-//            }
-//        }
-//    }
-
     fun print(cursor:GridCursor<T>? = null) {
         // column index line
         print("    ")
@@ -288,18 +167,6 @@ open class Grid2D<T>(var gridValues:MutableList<MutableList<T>>, val indexBase:I
             println()
         }
     }
-    /*
-        00 01 02 03 04 05
-        -----------------
-    00|  x  x  x  x  x  x
-    01|  x  x  x  x  x  x
-    02|  x  x [x] x  x  x
-    03|  x  x  x  x  x  x
-    04|  x  x  x  x  x  x
-    04|  x  x  x  x  x  x
-
-     */
-
 }
 
 enum class ORIENTATION {

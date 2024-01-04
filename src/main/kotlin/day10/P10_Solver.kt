@@ -2,7 +2,7 @@ package day10
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.*
+import util.grid2d.*
 import java.lang.IllegalStateException
 
 fun main(args: Array<String>) {
@@ -18,7 +18,7 @@ class P10_Solver : BaseSolver() {
     // answer: 6757
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         // initialized the grid
-        val pipeGrid = Grid2DFactory.initCharGrid(inputLines)
+        val pipeGrid = Grid2DFactory.initMutableCharGrid(inputLines)
 
         // find the start position
         val startCoordinate:Coordinate = pipeGrid.find('S').first()
@@ -40,7 +40,7 @@ class P10_Solver : BaseSolver() {
     // answer: 523
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         // initialized the grid
-        val pipeGrid = Grid2DFactory.initCharGrid(inputLines)
+        val pipeGrid = Grid2DFactory.initMutableCharGrid(inputLines)
 
         // find the start position
         val startCoordinate:Coordinate = pipeGrid.find('S').first()

@@ -2,9 +2,9 @@ package day13
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.ORIENTATION
-import util.grid.Grid2D
-import util.grid.Grid2DFactory
+import util.grid2d.ORIENTATION
+import util.grid2d.Grid2D
+import util.grid2d.Grid2DFactory
 import java.lang.IllegalArgumentException
 import java.lang.Integer.min
 

@@ -2,7 +2,7 @@ package day03
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.*
+import util.grid2d.*
 
 fun main(args: Array<String>) {
     P03_Solver().solve(INPUT_VARIANT.REAL)
@@ -26,7 +26,7 @@ class P03_Solver : BaseSolver() {
     // answer: 86841457
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         // initialize the grid, and find the valid part numbers in the grid
-        val grid = Grid2DFactory.initCharGrid(inputLines)
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
         val numbers = findNumbers(grid)
         val validPartNumbers = numbers.filter { isNumberValidPartNumber(it, grid) }.toList()
 

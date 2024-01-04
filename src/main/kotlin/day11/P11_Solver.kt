@@ -2,9 +2,9 @@ package day11
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.ORIENTATION
-import util.grid.Coordinate
-import util.grid.Grid2DFactory
+import util.grid2d.ORIENTATION
+import util.grid2d.Coordinate
+import util.grid2d.Grid2DFactory
 import kotlin.math.max
 import kotlin.math.min
 
@@ -20,7 +20,7 @@ class P11_Solver : BaseSolver() {
 
     // answer: 9724940
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        val grid = Grid2DFactory.initCharGrid(inputLines)
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
 
         // expand the grid, do the same for the horizontal (rows) and vertical (columns) orientation
         ORIENTATION.values().forEach { orientation ->
@@ -49,7 +49,7 @@ class P11_Solver : BaseSolver() {
 
     // answer: 569052586852
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        val grid = Grid2DFactory.initCharGrid(inputLines)
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
 
         // A. find the empty rows and columns
         val emptyOrientationsIndices:Map<ORIENTATION, List<Long>> = ORIENTATION.values()

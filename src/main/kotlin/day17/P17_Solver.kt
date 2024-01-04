@@ -2,10 +2,10 @@ package day17
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.Coordinate
-import util.grid.GridCursor
-import util.grid.Direction
-import util.grid.Grid2DFactory
+import util.grid2d.Coordinate
+import util.grid2d.GridCursor
+import util.grid2d.Direction
+import util.grid2d.Grid2DFactory
 import java.lang.IllegalArgumentException
 
 fun main(args: Array<String>) {
@@ -19,7 +19,7 @@ class P17_Solver : BaseSolver() {
     }
 
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        val grid = Grid2DFactory.initIntGrid(inputLines)
+        val grid = Grid2DFactory.initMutableIntGrid(inputLines)
         val crucibleCursor = GridCursor(grid, Coordinate(0, 0))
 
         var cheapestPath:GridCursor<Int>? = null

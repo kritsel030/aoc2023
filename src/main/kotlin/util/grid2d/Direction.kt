@@ -1,4 +1,4 @@
-package util.grid
+package util.grid2d
 
 
 enum class Direction {

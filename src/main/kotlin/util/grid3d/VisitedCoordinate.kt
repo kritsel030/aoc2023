@@ -1,4 +1,4 @@
-package util.grid
+package util.grid3d
 
 class VisitedCoordinate (val coordinate: Coordinate, val travelledDirection: Direction? = null, val travelledDistance:Int = 1){
     override fun toString() : String {

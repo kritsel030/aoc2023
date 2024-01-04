@@ -2,9 +2,9 @@ package day21
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.Coordinate
-import util.grid.Grid2DFactory
-import util.grid.InfiniteGrid
+import util.grid2d.Coordinate
+import util.grid2d.Grid2DFactory
+import util.grid2d.InfiniteGrid
 
 fun main(args: Array<String>) {
     P21_Solver().solve(INPUT_VARIANT.EXAMPLE)
@@ -18,7 +18,7 @@ class P21_Solver : BaseSolver() {
 
     // answer: 3764
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        val grid = Grid2DFactory.initCharGrid(inputLines)
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
         println("rows: ${grid.rowCount()}, columns: ${grid.colCount()}")
         val start = grid.find('S').first()
         grid.setValue(start, 'O')

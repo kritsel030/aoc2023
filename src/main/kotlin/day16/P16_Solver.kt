@@ -3,7 +3,7 @@ package day16
 import base.BaseSolver
 import base.INPUT_VARIANT
 import base.Part
-import util.grid.*
+import util.grid2d.*
 import java.lang.Error
 import kotlin.math.max
 

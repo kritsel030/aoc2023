@@ -2,9 +2,8 @@ package day14
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import util.grid.Direction
-import util.grid.Grid2DFactory
-import util.grid.ORIENTATION
+import util.grid2d.Grid2DFactory
+import util.grid2d.ORIENTATION
 
 fun main(args: Array<String>) {
     P14_Solver().solve(INPUT_VARIANT.REAL)
@@ -16,13 +15,13 @@ class P14_Solver : BaseSolver() {
         return "tilt platform"
     }
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
-        val grid = Grid2DFactory.initCharGrid(inputLines)
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
 
 //        grid.print()
 //        println()
 
         (0 until grid.size(ORIENTATION.VERTICAL)).forEach { listIndex ->
-            val list = grid.getValues(ORIENTATION.VERTICAL, listIndex)
+            val list = grid.getValues(ORIENTATION.VERTICAL, listIndex).toMutableList()
 
             // roll down the rolling rocks
             val cubeIndices = list.mapIndexed { shapeIndex, shape -> if (shape == '#') shapeIndex else -1}.filter{it>= 0}

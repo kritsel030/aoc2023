@@ -1,8 +1,6 @@
-package util.grid
+package util.grid2d
 
-class InfiniteGrid<T>(gridValues:MutableList<MutableList<T>>, indexBase:Int = 0) : Grid2D<T>(gridValues, indexBase) {
-
-
+class InfiniteGrid<T>(gridValues:List<List<T>>, indexBase:Int = 0) : Grid2D<T>(gridValues, indexBase) {
 
     fun patternRowCount() : Int {
         return super.rowCount()
@@ -79,14 +77,6 @@ class InfiniteGrid<T>(gridValues:MutableList<MutableList<T>>, indexBase:Int = 0)
 
     override fun getValues(orientation: ORIENTATION, id: Int): MutableList<T> {
         throw NotImplementedError("${this.javaClass.simpleName}.getValues(ORIENTATION, Int)")
-    }
-
-    override fun setValue(coordinate: Coordinate, value: T) {
-        throw NotImplementedError("${this.javaClass.simpleName}.setValue(Coordinate, T)")
-    }
-
-    override fun setValue(rowNo: Int, colNo: Int, value: T) {
-        throw NotImplementedError("${this.javaClass.simpleName}.setValue(Int, Int, T)")
     }
 
     override fun find(value: T): List<Coordinate> {

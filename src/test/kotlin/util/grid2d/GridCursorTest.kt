@@ -1,4 +1,4 @@
-package util.grid
+package util.grid2d
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -13,9 +13,9 @@ class GridCursorTest {
         "lmnop",
         "qrstu"
     )
-    val GRID_1_INDEX = Grid2DFactory.initCharGrid(INPUT, 1)
-    val GRID_0_INDEX = Grid2DFactory.initCharGrid(INPUT)
-    val GRID_MINUS2_INDEX = Grid2DFactory.initCharGrid(INPUT, -2)
+    val GRID_1_INDEX = Grid2DFactory.initMutableCharGrid(INPUT, 1)
+    val GRID_0_INDEX = Grid2DFactory.initMutableCharGrid(INPUT)
+    val GRID_MINUS2_INDEX = Grid2DFactory.initMutableCharGrid(INPUT, -2)
 
     @Test
     fun constructorTest() {

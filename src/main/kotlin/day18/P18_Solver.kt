@@ -2,8 +2,7 @@ package day18
 
 import base.BaseSolver
 import base.INPUT_VARIANT
-import base.Part
-import util.grid.*
+import util.grid2d.*
 import java.lang.Error
 import kotlin.IllegalArgumentException
 
@@ -60,7 +59,7 @@ class P18_Solver : BaseSolver() {
                 minRows = minOf(minRows, rowCount)
             }
 
-        val grid = Grid2D<Char>(maxRows-minRows+1, maxColumns-minColumns+1, '.')
+        val grid = MutableGrid2D<Char>(maxRows-minRows+1, maxColumns-minColumns+1, '.')
         try {
             val cursor = GridCursor(grid, Coordinate(-minRows, -minColumns), instructions[0].direction, CursorPathStrategy.FULL_PATH, CursorGridStrategy.REGISTER_VISITED)
             instructions.forEach{

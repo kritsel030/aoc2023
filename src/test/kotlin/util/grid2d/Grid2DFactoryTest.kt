@@ -1,4 +1,4 @@
-package util.grid
+package util.grid2d
 
 import kotlin.test.Test
 
@@ -12,7 +12,7 @@ class Grid2DFactoryTest {
             "lmnop",
             "qrstu"
         )
-        val grid = Grid2DFactory.initCharGrid(inputLines)
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
     }
 
     @Test
@@ -23,6 +23,6 @@ class Grid2DFactoryTest {
             "1357913",
             "2468024"
         )
-        val grid = Grid2DFactory.initIntGrid(inputLines)
+        val grid = Grid2DFactory.initMutableIntGrid(inputLines)
     }
 }
