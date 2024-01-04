@@ -88,7 +88,7 @@ open class Grid2D<T>(var gridValues:List<List<T>>, val indexBase:Int = 0) {
         return true
     }
 
-    fun isVisited(coordinate: Coordinate, direction: Direction?): Boolean {
+    fun isVisited(coordinate: Coordinate, direction: Direction? = null): Boolean {
 //        val print = coordinate.equals(Coordinate(72, 20))
         val print = false
         if (print) {
