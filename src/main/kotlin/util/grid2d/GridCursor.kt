@@ -42,7 +42,7 @@ open class GridCursor<T>(
 
     }
 
-    fun clone() : GridCursor<T> {
+    open fun clone() : GridCursor<T> {
         var clone = GridCursor(grid, currentCoordinate, latestDirection())
         if (pathStrategy == CursorPathStrategy.FULL_PATH) {
             clone.path = path.toMutableList()
@@ -71,48 +71,64 @@ open class GridCursor<T>(
         } else {
             if (canMove(direction, distance)) {
                 // move returns a new Coordinate instance
-                currentCoordinate = currentCoordinate.move(direction, distance)
-                if (visitedValue != null) {
-                    if (grid is MutableGrid2D) {
-                        grid.setValue(currentCoordinate, visitedValue!!)
-                    }
-                }
-                when (gridStrategy) {
-                    CursorGridStrategy.REGISTER_VISITED -> {
-                        // inform the grid that one of its coordinates has been visited
-                        val visitedBefore = grid.visitedCoordinates[currentCoordinate]
-                        if (visitedBefore != null) {
-                            // we've been here before
-                            visitedBefore[direction] = true
-                            visitedBefore["count"] = (visitedBefore["count"]!! as Int) + 1
-                        } else {
-                            // we're new here
-                            val visitedCoordinateDetails: MutableMap<Any, Any> =
-                                mutableMapOf(
-                                    direction to true,
-                                    "count" to 1
-                                )
-                            grid.visitedCoordinates[currentCoordinate] = visitedCoordinateDetails
-                        }
-                    }
-
-                    else -> {}
-                }
-                when (pathStrategy) {
-                    CursorPathStrategy.FULL_PATH ->
-                        // add to the start of the path, so the path starts at the most recent element and reads backwards
-                        path.add(0, VisitedGridCoordinate<T>(currentCoordinate, direction, distance, grid.getValue(currentCoordinate)))
-
-                    CursorPathStrategy.LATEST_ONLY ->
-                        // overwrite the current single path entry
-                        path.set(0, VisitedGridCoordinate<T>(currentCoordinate, direction, distance, grid.getValue(currentCoordinate)))
-
-                    else -> {}
-                }
+                val newCoordinate = currentCoordinate.move(direction, distance)
+                moveTo(newCoordinate, direction, distance, visitedValue)
 
             } else {
                 throw IllegalStateException("sorry, the coordinate $distance steps in $direction direction is out of bounds (current coordinate is ${currentCoordinate.rowNo}, ${currentCoordinate.colNo})")
             }
+        }
+    }
+
+    fun moveTo(
+        newCoordinate: Coordinate,
+        direction: Direction,
+        distance: Int = 1,
+        visitedValue: T? = null,
+    ) {
+        currentCoordinate = newCoordinate
+        if (visitedValue != null) {
+            if (grid is MutableGrid2D) {
+                grid.setValue(currentCoordinate, visitedValue!!)
+            }
+        }
+        when (gridStrategy) {
+            CursorGridStrategy.REGISTER_VISITED -> {
+                // inform the grid that one of its coordinates has been visited
+                val visitedBefore = grid.visitedCoordinates[currentCoordinate]
+                if (visitedBefore != null) {
+                    // we've been here before
+                    visitedBefore[direction] = true
+                    visitedBefore["count"] = (visitedBefore["count"]!! as Int) + 1
+                } else {
+                    // we're new here
+                    val visitedCoordinateDetails: MutableMap<Any, Any> =
+                        mutableMapOf(
+                            direction to true,
+                            "count" to 1
+                        )
+                    grid.visitedCoordinates[currentCoordinate] = visitedCoordinateDetails
+                }
+            }
+
+            else -> {}
+        }
+        when (pathStrategy) {
+            CursorPathStrategy.FULL_PATH ->
+                // add to the start of the path, so the path starts at the most recent element and reads backwards
+                path.add(
+                    0,
+                    VisitedGridCoordinate<T>(currentCoordinate, direction, distance, grid.getValue(currentCoordinate))
+                )
+
+            CursorPathStrategy.LATEST_ONLY ->
+                // overwrite the current single path entry
+                path.set(
+                    0,
+                    VisitedGridCoordinate<T>(currentCoordinate, direction, distance, grid.getValue(currentCoordinate))
+                )
+
+            else -> {}
         }
     }
 
@@ -157,7 +173,7 @@ open class GridCursor<T>(
         return this.currentCoordinate.rowNo == rowNo && this.currentCoordinate.colNo == colNo
     }
 
-    fun hasVisited(rowNo:Int, colNo:Int) : Boolean {
+    open fun hasVisited(rowNo:Int, colNo:Int) : Boolean {
 
         return this.path.map{it.coordinate}.contains(Coordinate(rowNo, colNo))
     }
