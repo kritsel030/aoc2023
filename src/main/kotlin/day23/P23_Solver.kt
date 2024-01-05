@@ -17,6 +17,8 @@ class P23_Solver : BaseSolver() {
     override fun getPuzzleName(): String {
         return "long walk"
     }
+
+    // answer: 2114
     override fun solvePart1(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any{
         val grid = Grid2DFactory.initCharGrid(inputLines)
 
@@ -36,19 +38,49 @@ class P23_Solver : BaseSolver() {
             }
         }
 
-//        val longestPathCursor = move(cursor, Direction.SOUTH, Segment(start, Direction.SOUTH), grid, segments)
+        println("complete path lengths: ${endReachedCursors.map {it.length()}}")
 
         val longestPathCursor = endReachedCursors.maxByOrNull { it.length() }
         val answer = if (longestPathCursor != null) longestPathCursor.length() else "null result"
-//        if (longestPathCursor != null) {
-//            printGrid(grid, longestPathCursor)
-//        }
+        if (inputVariant== INPUT_VARIANT.EXAMPLE && longestPathCursor != null) {
+            printGrid(grid, longestPathCursor)
+        }
         return answer
-
     }
 
+
+    // 3763 too low
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        return "TODO"
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
+        // replace all slopes with normal tiles
+        listOf('>', 'v', '<', '^').forEach { slope ->
+            grid.find(slope).forEach { coordinate -> grid.setValue(coordinate, '.') }
+        }
+
+        // key: start coordinate of the section + direction to the next tile
+        // value: end coordinate of the section + plus the distance from start to finish (excluding the end coordinate)
+        val segments = mutableMapOf<Pair<Coordinate, Direction>, Segment>()
+        val start = Coordinate(0, 1)
+        val cursor = HikeCursor(grid, start)
+        val queue = PriorityQueue<Command>()
+        val endReachedCursors = mutableListOf<HikeCursor>()
+        queue.add(Command(cursor, start, Direction.SOUTH,  Segment(start, Direction.SOUTH), grid, segments, queue))
+        while(!queue.isEmpty()) {
+            val command = queue.poll()
+            val endReached = command.execute()
+            if (endReached) {
+                endReachedCursors.add(command.cursor)
+            }
+        }
+
+        println("complete path lengths: ${endReachedCursors.map {it.length()}}")
+
+        val longestPathCursor = endReachedCursors.maxByOrNull { it.length() }
+        val answer = if (longestPathCursor != null) longestPathCursor.length() else "null result"
+        if (inputVariant== INPUT_VARIANT.EXAMPLE && longestPathCursor != null) {
+            printGrid(grid, longestPathCursor)
+        }
+        return answer
     }
 
     companion object {
@@ -58,8 +90,9 @@ class P23_Solver : BaseSolver() {
                  grid:Grid2D<Char>,
                  segments:MutableMap<Pair<Coordinate, Direction>, Segment>,
                  queue:PriorityQueue<Command>,
+                 slipperySlopes: Boolean,
                  depth: Int = 0) : Boolean {
-            return jumpTo(cursor, cursor.currentCoordinate.move(direction), direction, segment, grid, segments, queue, depth)
+            return jumpTo(cursor, cursor.currentCoordinate.move(direction), direction, segment, grid, segments, queue, slipperySlopes, depth)
         }
 
         fun jumpTo(cursor: HikeCursor,
@@ -69,6 +102,7 @@ class P23_Solver : BaseSolver() {
                    grid:Grid2D<Char>,
                    segments:MutableMap<Pair<Coordinate, Direction>, Segment>,
                    queue:PriorityQueue<Command>,
+                   slipperySlopes: Boolean,
                    depth: Int) : Boolean {
             val prefixBuilder = StringBuilder()
             for (i in (0 until depth)) {
@@ -82,21 +116,29 @@ class P23_Solver : BaseSolver() {
 
             if (cursor.currentCoordinate == target) {
                 println("$prefix hit target at $currentPathLength")
-    //            return currentPathLength
+                cursor.pathLengthAtNodes.forEach { (coordinate, direction, pathLength)  ->
+                    val longestKey = "longest_$direction"
+                    if (! grid.visitedCoordinates[coordinate]!!.containsKey(longestKey) ||
+                        pathLength > (grid.visitedCoordinates[coordinate]!![longestKey] as Int)) {
+                        grid.visitedCoordinates[coordinate]!![longestKey] = pathLength
+                    }
+                }
                 return true
             }
 
             // are we new here? or have we been here before, but via a shorter path?
-            if (! grid.isVisited(cursor.currentCoordinate) ||
-                ! grid.visitedCoordinates[cursor.currentCoordinate]!!.containsKey("longest") ||
-                currentPathLength > (grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] as Int) ) {
-                grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] = currentPathLength
+            val longestKey = "longest_$direction"
+            if (! grid.visitedCoordinates[cursor.currentCoordinate]!!.containsKey(longestKey) ||
+                currentPathLength > (grid.visitedCoordinates[cursor.currentCoordinate]!![longestKey] as Int) ) {
+//                grid.visitedCoordinates[cursor.currentCoordinate]!![longestKey] = currentPathLength
     //            println("hit ${cursor.currentCoordinate} at $currentPathLength")
 
-                val validNeighbours = validNeighbours(cursor, grid)
+                val validNeighbours = validNeighbours(cursor, grid, slipperySlopes)
                 if (validNeighbours.size > 1) {
-                    println("$prefix ${cursor.currentCoordinate} is a node (${validNeighbours.size} valid neighbours)")
                     // we've hit a node
+//                    println("$prefix ${cursor.currentCoordinate} is a node (${validNeighbours.size} valid neighbours)")
+                    cursor.pathLengthAtNodes.add(Triple(cursor.currentCoordinate, direction, currentPathLength))
+
                     // end and process the current segment
                     segment.oneway = if (cursor.getValue() != '.') true else segment.oneway
                     segment.coordinates.add(cursor.currentCoordinate)
@@ -114,42 +156,43 @@ class P23_Solver : BaseSolver() {
                     }
 
                     val cursors = validNeighbours.map {
+                        val newSegment = Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.')
                         // do we have segment data for this node which we can use?
                         if (segments.containsKey(Pair(cursor.currentCoordinate, it.key))) {
                             val segment = segments[(Pair(cursor.currentCoordinate, it.key))]!!
-                            println("$prefix going ${it.key} | use segment data for ${cursor.currentCoordinate} to jump to ${segment.end}")
+//                            println("$prefix going ${it.key} | use segment data for ${cursor.currentCoordinate} to jump to ${segment.end}")
                             // add the segment to the cursor
                             cursor.segments.add(segment)
                             // jump to segment end
                             //jumpTo(cursor.clone(), segment.end!!, it.key, segment, grid, segments, depth+1)
-                            queue.add(Command(cursor.clone(), segment.end!!, it.key, segment, grid, segments, queue, depth+1))
+//                            queue.add(Command(cursor.clone(), segment.end!!, it.key, segment, grid, segments, queue, slipperySlopes, depth+1))
+                            queue.add(Command(cursor.clone(), segment.end!!, it.key, newSegment, grid, segments, queue, slipperySlopes, depth+1))
                         } else {
-                            println("$prefix going ${it.key} | simply move to ${it.value}")
+//                            println("$prefix going ${it.key} | simply move to ${it.value}")
 //                            move(cursor.clone(), it.key, Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.'), grid, segments, depth+1)
                             val clonedCursor = cursor.clone()
-                            queue.add(Command(clonedCursor, it.value, it.key, Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.'), grid, segments, queue, depth+1))
+                            queue.add(Command(clonedCursor, it.value, it.key, newSegment, grid, segments, queue, slipperySlopes, depth+1))
                         }
                     }
-//                    return cursors.filterNotNull().maxByOrNull { it.length() }
                     return false
                 } else if (validNeighbours.size == 1) {
                     if (cursor.getValue() != '.') {
                         segment.oneway = true
                     }
                     segment.coordinates.add(cursor.currentCoordinate)
-                    segment.length++
-                    return move(cursor, validNeighbours.keys.first(), segment, grid, segments, queue, depth)
+                    return move(cursor, validNeighbours.keys.first(), segment, grid, segments, queue, slipperySlopes, depth)
                 } else {
                     // we've reached a dead end
-                    println("$prefix hit dead end at ${cursor.currentCoordinate}")
+//                    println("$prefix [STOP] hit dead end at ${cursor.currentCoordinate}")
                 }
             } else {
-                // we were here before, via a longer path, so no need to further explore our current path
+                // we were here before, via a longer path, so no need to further explore our current shorter path
+//                println("$prefix [STOP] been at ${cursor.currentCoordinate} before via longer path ${grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"]} (compared to current $currentPathLength)")
             }
             return false
         }
 
-        fun validNeighbours (cursor: HikeCursor, grid: Grid2D<Char>) : Map<Direction, Coordinate> {
+        fun validNeighbours (cursor: HikeCursor, grid: Grid2D<Char>, slipperySlopes:Boolean) : Map<Direction, Coordinate> {
             return cursor.getNeighbours().filter {
                         // do not revisit a tile we've visited before with this cursor
                         cursor.path.none { visCoord -> visCoord.coordinate == it.value } &&
@@ -157,13 +200,15 @@ class P23_Solver : BaseSolver() {
                         // do not visit a tile which represents forest
                         grid.getValue(it.value) != '#' &&
                         // adhere to the forced directions
+                        (!slipperySlopes ||
                          ((grid.getValue(cursor.currentCoordinate) == '>' && it.key == Direction.EAST) ||
                                  (grid.getValue(cursor.currentCoordinate) == 'v' && it.key == Direction.SOUTH) ||
                                  (grid.getValue(cursor.currentCoordinate) == '<' && it.key == Direction.WEST) ||
                                  (grid.getValue(cursor.currentCoordinate) == '^' && it.key == Direction.NORTH) ||
-                                 grid.getValue(cursor.currentCoordinate) == '.')
+                                 grid.getValue(cursor.currentCoordinate) == '.'))
             }
         }
+
         fun printGrid(grid:Grid2D<Char>, cursor:HikeCursor?) {
                 val indexBase = grid.indexBase
                 val gridValues = grid.gridValues
@@ -202,6 +247,7 @@ class P23_Solver : BaseSolver() {
 
 class HikeCursor(grid: Grid2D<Char>, startCoordinate: Coordinate) : GridCursor<Char>(grid, startCoordinate) {
     var segments = mutableListOf<Segment>()
+    var pathLengthAtNodes = mutableListOf<Triple<Coordinate, Direction, Int>>()
 
     fun length() : Int{
 //        return path.size + segments.sumOf { it.length }
@@ -221,6 +267,7 @@ class HikeCursor(grid: Grid2D<Char>, startCoordinate: Coordinate) : GridCursor<C
             clone.path = path.toMutableList()
         }
         clone.segments = this.segments.toMutableList()
+        clone.pathLengthAtNodes = this.pathLengthAtNodes.toMutableList()
         return clone
     }
 }
@@ -231,8 +278,7 @@ class Segment(
     var oneway: Boolean = false,
     val coordinates:MutableSet<Coordinate> = mutableSetOf(start),
     var end:Coordinate? = null,
-    var endDirection: Direction? = null,
-    var length:Int = 1
+    var endDirection: Direction? = null
 ) {
     fun inverse() : Segment {
         return Segment(
@@ -241,8 +287,7 @@ class Segment(
                 this.oneway,
                 this.coordinates,
                 this.start,
-                this.startDirection.opposite(),
-                this.length)
+                this.startDirection.opposite())
 
     }
 }
@@ -254,9 +299,10 @@ class Command(val cursor: HikeCursor,
               val grid:Grid2D<Char>,
               val segments:MutableMap<Pair<Coordinate, Direction>, Segment>,
               val queue:PriorityQueue<Command>,
+              val slipperySlopes: Boolean = true,
               val depth: Int = 1) : Comparable<Command>{
     fun execute() : Boolean {
-        return jumpTo(cursor, newCoordinate, direction, segment, grid, segments, queue, depth)
+        return jumpTo(cursor, newCoordinate, direction, segment, grid, segments, queue, slipperySlopes, depth)
     }
 
     override fun compareTo(other: Command): Int {

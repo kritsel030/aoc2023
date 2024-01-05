@@ -7,7 +7,7 @@ import java.lang.StringBuilder
 import kotlin.math.absoluteValue
 
 fun main(args: Array<String>) {
-    P23_Solver_recursive().solve(INPUT_VARIANT.REAL)
+    P23_Solver_recursive().solve(INPUT_VARIANT.EXAMPLE)
 }
 
 class P23_Solver_recursive : BaseSolver() {
@@ -26,14 +26,30 @@ class P23_Solver_recursive : BaseSolver() {
         val cursor = HikeCursor(grid, start)
         val longestPathCursor = move(cursor, Direction.SOUTH, Segment(start, Direction.SOUTH), grid, segments)
         val answer = if (longestPathCursor != null) longestPathCursor.length() else "null result"
-//        if (longestPathCursor != null) {
-//            printGrid(longestPathCursor)
-//        }
+        if (inputVariant== INPUT_VARIANT.EXAMPLE && longestPathCursor != null) {
+            printGrid(longestPathCursor)
+        }
         return answer
     }
 
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
-        return "TODO"
+        val grid = Grid2DFactory.initMutableCharGrid(inputLines)
+        listOf('>', 'v', '<', '^').forEach { slope ->
+            grid.find(slope).forEach { coordinate -> grid.setValue(coordinate, '.') }
+        }
+
+        // key: start coordinate of the section + direction to the next tile
+        // value: end coordinate of the section + plus the distance from start to finish (excluding the end coordinate)
+        val segments = mutableMapOf<Pair<Coordinate, Direction>, Segment>()
+
+        val start = Coordinate(0, 1)
+        val cursor = HikeCursor(grid, start)
+        val longestPathCursor = move(cursor, Direction.SOUTH, Segment(start, Direction.SOUTH), grid, segments)
+        val answer = if (longestPathCursor != null) longestPathCursor.length() else "null result"
+        if (inputVariant== INPUT_VARIANT.EXAMPLE && longestPathCursor != null) {
+            printGrid(longestPathCursor)
+        }
+        return answer
     }
 
     fun move(cursor: HikeCursor,
@@ -62,21 +78,30 @@ class P23_Solver_recursive : BaseSolver() {
 
         if (cursor.currentCoordinate == target) {
             println("$prefix hit target at $currentPathLength")
+            cursor.pathLengthAtNodes.forEach { (coordinate, direction, pathLength)  ->
+                val longestKey = "longest_$direction"
+                if (! grid.visitedCoordinates[coordinate]!!.containsKey(longestKey) ||
+                        pathLength > (grid.visitedCoordinates[coordinate]!![longestKey] as Int)) {
+                    grid.visitedCoordinates[coordinate]!![longestKey] = pathLength
+                }
+            }
 //            return currentPathLength
             return cursor
         }
 
         // are we new here? or have we been here before, but via a shorter path?
-        if (! grid.isVisited(cursor.currentCoordinate) ||
-            ! grid.visitedCoordinates[cursor.currentCoordinate]!!.containsKey("longest") ||
-            currentPathLength > (grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] as Int) ) {
-            grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] = currentPathLength
+        val longestKey = "longest_$direction"
+        if (! grid.visitedCoordinates[cursor.currentCoordinate]!!.containsKey(longestKey) ||
+            currentPathLength > (grid.visitedCoordinates[cursor.currentCoordinate]!![longestKey] as Int) ) {
+//            grid.visitedCoordinates[cursor.currentCoordinate]!![longestKey] = currentPathLength
 //            println("hit ${cursor.currentCoordinate} at $currentPathLength")
 
             val validNeighbours = validNeighbours(cursor, grid)
             if (validNeighbours.size > 1) {
-                println("$prefix ${cursor.currentCoordinate} is a node (${validNeighbours.size} valid neighbours)")
                 // we've hit a node
+//                println("$prefix ${cursor.currentCoordinate} is a node (${validNeighbours.size} valid neighbours)")
+                cursor.pathLengthAtNodes.add(Triple(cursor.currentCoordinate, direction, currentPathLength))
+
                 // end and process the current segment
                 segment.oneway = if (cursor.getValue() != '.') true else segment.oneway
                 segment.coordinates.add(cursor.currentCoordinate)
@@ -97,13 +122,13 @@ class P23_Solver_recursive : BaseSolver() {
                     // do we have segment data for this node which we can use?
                     if (segments.containsKey(Pair(cursor.currentCoordinate, it.key))) {
                         val segment = segments[(Pair(cursor.currentCoordinate, it.key))]!!
-                        println("$prefix going ${it.key} | use segment data for ${cursor.currentCoordinate} to jump to ${segment.end}")
+//                        println("$prefix going ${it.key} | use segment data for ${cursor.currentCoordinate} to jump to ${segment.end}")
                         // add the segment to the cursor
                         cursor.segments.add(segment)
                         // jump to segment end
                         jumpTo(cursor.clone(), segment.end!!, it.key, segment, grid, segments, depth+1)
                     } else {
-                        println("$prefix going ${it.key} | simply move")
+//                        println("$prefix going ${it.key} | simply move")
                         move(cursor.clone(), it.key, Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.'), grid, segments, depth+1)
                     }
                 }
@@ -113,14 +138,14 @@ class P23_Solver_recursive : BaseSolver() {
                     segment.oneway = true
                 }
                 segment.coordinates.add(cursor.currentCoordinate)
-                segment.length++
                 return move(cursor, validNeighbours.keys.first(), segment, grid, segments, depth)
             } else {
                 // we've reached a dead end
-                println("$prefix hit dead end at ${cursor.currentCoordinate}")
+//                println("$prefix [STOP] hit dead end at ${cursor.currentCoordinate}")
             }
         } else {
-            // we were here before, via a longer path, so no need to further explore our current path
+            // we were here before, via a longer path, so no need to further explore our current shorter path
+//            println("$prefix [STOP] been at ${cursor.currentCoordinate} before via longer path ${grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"]} (compared to current $currentPathLength)")
         }
         return null
     }
@@ -138,12 +163,6 @@ class P23_Solver_recursive : BaseSolver() {
                              (grid.getValue(cursor.currentCoordinate) == '<' && it.key == Direction.WEST) ||
                              (grid.getValue(cursor.currentCoordinate) == '^' && it.key == Direction.NORTH) ||
                              grid.getValue(cursor.currentCoordinate) == '.')
-
-                    // do not visit any tiles which will force you to go back the way you came
-//                    (it.key == Direction.EAST && grid.getValue(it.value) != '<') &&
-//                    (it.key == Direction.WEST && grid.getValue(it.value) != '>') &&
-//                    (it.key == Direction.NORTH && grid.getValue(it.value) != 'v') &&
-//                    (it.key == Direction.SOUTH && grid.getValue(it.value) != '^')
         }
     }
 
