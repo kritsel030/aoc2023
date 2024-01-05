@@ -2,8 +2,10 @@ package day23
 
 import base.BaseSolver
 import base.INPUT_VARIANT
+import day23.P23_Solver.Companion.jumpTo
 import util.grid2d.*
 import java.lang.StringBuilder
+import java.util.PriorityQueue
 import kotlin.math.absoluteValue
 
 fun main(args: Array<String>) {
@@ -21,137 +23,151 @@ class P23_Solver : BaseSolver() {
         // key: start coordinate of the section + direction to the next tile
         // value: end coordinate of the section + plus the distance from start to finish (excluding the end coordinate)
         val segments = mutableMapOf<Pair<Coordinate, Direction>, Segment>()
-
         val start = Coordinate(0, 1)
         val cursor = HikeCursor(grid, start)
-        val longestPathCursor = move(cursor, Direction.SOUTH, Segment(start, Direction.SOUTH), grid, segments)
+        val queue = PriorityQueue<Command>()
+        val endReachedCursors = mutableListOf<HikeCursor>()
+        queue.add(Command(cursor, start, Direction.SOUTH,  Segment(start, Direction.SOUTH), grid, segments, queue))
+        while(!queue.isEmpty()) {
+            val command = queue.poll()
+            val endReached = command.execute()
+            if (endReached) {
+                endReachedCursors.add(command.cursor)
+            }
+        }
+
+//        val longestPathCursor = move(cursor, Direction.SOUTH, Segment(start, Direction.SOUTH), grid, segments)
+
+        val longestPathCursor = endReachedCursors.maxByOrNull { it.length() }
         val answer = if (longestPathCursor != null) longestPathCursor.length() else "null result"
 //        if (longestPathCursor != null) {
-//            printGrid(longestPathCursor)
+//            printGrid(grid, longestPathCursor)
 //        }
         return answer
+
     }
 
     override fun solvePart2(inputLines: List<String>, inputVariant: INPUT_VARIANT): Any {
         return "TODO"
     }
 
-    fun move(cursor: HikeCursor,
-             direction: Direction,
-             segment:Segment,
-             grid:Grid2D<Char>,
-             segments:MutableMap<Pair<Coordinate, Direction>, Segment>, depth: Int = 0) : HikeCursor? {
-        return jumpTo(cursor, cursor.currentCoordinate.move(direction), direction, segment, grid, segments, depth)
-    }
-
-    fun jumpTo(cursor: HikeCursor,
-               newCoordinate:Coordinate,
-               direction: Direction,
-               segment:Segment,
-               grid:Grid2D<Char>,
-               segments:MutableMap<Pair<Coordinate, Direction>, Segment>, depth: Int) : HikeCursor? {
-        val prefixBuilder = StringBuilder()
-        for (i in (0 until depth)) {
-            prefixBuilder.append(" ")
-        }
-        val prefix = prefixBuilder.toString()
-        cursor.moveTo(newCoordinate, direction)
-
-        val currentPathLength = cursor.length()
-        val target = Coordinate(grid.rowCount()-1, grid.colCount() - 2)
-
-        if (cursor.currentCoordinate == target) {
-            println("$prefix hit target at $currentPathLength")
-//            return currentPathLength
-            return cursor
-        }
-
-        // are we new here? or have we been here before, but via a shorter path?
-        if (! grid.isVisited(cursor.currentCoordinate) ||
-            ! grid.visitedCoordinates[cursor.currentCoordinate]!!.containsKey("longest") ||
-            currentPathLength > (grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] as Int) ) {
-            grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] = currentPathLength
-//            println("hit ${cursor.currentCoordinate} at $currentPathLength")
-
-            val validNeighbours = validNeighbours(cursor, grid)
-            if (validNeighbours.size > 1) {
-                println("$prefix ${cursor.currentCoordinate} is a node (${validNeighbours.size} valid neighbours)")
-                // we've hit a node
-                // end and process the current segment
-                segment.oneway = if (cursor.getValue() != '.') true else segment.oneway
-                segment.coordinates.add(cursor.currentCoordinate)
-                segment.end = cursor.currentCoordinate
-                segment.endDirection = direction
-                segments[Pair(segment.start, segment.startDirection)] = segment
-                // add the segment to the cursor
-                cursor.segments.add(segment)
-                // reset the cursor
-                cursor.path = mutableListOf()
-                // when the segment was not one-way, process the inverse of this segment
-                if (!segment.oneway) {
-                    val inverseSegment = segment.inverse()
-                    segments[Pair(inverseSegment.start, inverseSegment.startDirection)] = inverseSegment
-                }
-
-                val cursors = validNeighbours.map {
-                    // do we have segment data for this node which we can use?
-                    if (segments.containsKey(Pair(cursor.currentCoordinate, it.key))) {
-                        val segment = segments[(Pair(cursor.currentCoordinate, it.key))]!!
-                        println("$prefix going ${it.key} | use segment data for ${cursor.currentCoordinate} to jump to ${segment.end}")
-                        // add the segment to the cursor
-                        cursor.segments.add(segment)
-                        // jump to segment end
-                        jumpTo(cursor.clone(), segment.end!!, it.key, segment, grid, segments, depth+1)
-                    } else {
-                        println("$prefix going ${it.key} | simply move")
-                        move(cursor.clone(), it.key, Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.'), grid, segments, depth+1)
-                    }
-                }
-                return cursors.filterNotNull().maxByOrNull { it.length() }
-            } else if (validNeighbours.size == 1) {
-                if (cursor.getValue() != '.') {
-                    segment.oneway = true
-                }
-                segment.coordinates.add(cursor.currentCoordinate)
-                segment.length++
-                return move(cursor, validNeighbours.keys.first(), segment, grid, segments, depth)
-            } else {
-                // we've reached a dead end
-                println("$prefix hit dead end at ${cursor.currentCoordinate}")
-            }
-        } else {
-            // we were here before, via a longer path, so no need to further explore our current path
-        }
-        return null
-    }
-
-    fun validNeighbours (cursor: HikeCursor, grid: Grid2D<Char>) : Map<Direction, Coordinate> {
-        return cursor.getNeighbours().filter {
-                    // do not revisit a tile we've visited before with this cursor
-                    cursor.path.none { visCoord -> visCoord.coordinate == it.value } &&
-                    cursor.segments.none { seg -> !seg.coordinates.none { coord -> coord == it.value } } &&
-                    // do not visit a tile which represents forest
-                    grid.getValue(it.value) != '#' &&
-                    // adhere to the forced directions
-                     ((grid.getValue(cursor.currentCoordinate) == '>' && it.key == Direction.EAST) ||
-                             (grid.getValue(cursor.currentCoordinate) == 'v' && it.key == Direction.SOUTH) ||
-                             (grid.getValue(cursor.currentCoordinate) == '<' && it.key == Direction.WEST) ||
-                             (grid.getValue(cursor.currentCoordinate) == '^' && it.key == Direction.NORTH) ||
-                             grid.getValue(cursor.currentCoordinate) == '.')
-
-                    // do not visit any tiles which will force you to go back the way you came
-//                    (it.key == Direction.EAST && grid.getValue(it.value) != '<') &&
-//                    (it.key == Direction.WEST && grid.getValue(it.value) != '>') &&
-//                    (it.key == Direction.NORTH && grid.getValue(it.value) != 'v') &&
-//                    (it.key == Direction.SOUTH && grid.getValue(it.value) != '^')
-        }
-    }
-
     companion object {
-        fun printGrid(cursor:HikeCursor) {
-                val indexBase = cursor.grid.indexBase
-                val gridValues = cursor.grid.gridValues
-                val visitedCoordinates = cursor.grid.visitedCoordinates
+        fun move(cursor: HikeCursor,
+                 direction: Direction,
+                 segment:Segment,
+                 grid:Grid2D<Char>,
+                 segments:MutableMap<Pair<Coordinate, Direction>, Segment>,
+                 queue:PriorityQueue<Command>,
+                 depth: Int = 0) : Boolean {
+            return jumpTo(cursor, cursor.currentCoordinate.move(direction), direction, segment, grid, segments, queue, depth)
+        }
+
+        fun jumpTo(cursor: HikeCursor,
+                   newCoordinate:Coordinate,
+                   direction: Direction,
+                   segment:Segment,
+                   grid:Grid2D<Char>,
+                   segments:MutableMap<Pair<Coordinate, Direction>, Segment>,
+                   queue:PriorityQueue<Command>,
+                   depth: Int) : Boolean {
+            val prefixBuilder = StringBuilder()
+            for (i in (0 until depth)) {
+                prefixBuilder.append(" ")
+            }
+            val prefix = prefixBuilder.toString()
+            cursor.moveTo(newCoordinate, direction)
+
+            val currentPathLength = cursor.length()
+            val target = Coordinate(grid.rowCount()-1, grid.colCount() - 2)
+
+            if (cursor.currentCoordinate == target) {
+                println("$prefix hit target at $currentPathLength")
+    //            return currentPathLength
+                return true
+            }
+
+            // are we new here? or have we been here before, but via a shorter path?
+            if (! grid.isVisited(cursor.currentCoordinate) ||
+                ! grid.visitedCoordinates[cursor.currentCoordinate]!!.containsKey("longest") ||
+                currentPathLength > (grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] as Int) ) {
+                grid.visitedCoordinates[cursor.currentCoordinate]!!["longest"] = currentPathLength
+    //            println("hit ${cursor.currentCoordinate} at $currentPathLength")
+
+                val validNeighbours = validNeighbours(cursor, grid)
+                if (validNeighbours.size > 1) {
+                    println("$prefix ${cursor.currentCoordinate} is a node (${validNeighbours.size} valid neighbours)")
+                    // we've hit a node
+                    // end and process the current segment
+                    segment.oneway = if (cursor.getValue() != '.') true else segment.oneway
+                    segment.coordinates.add(cursor.currentCoordinate)
+                    segment.end = cursor.currentCoordinate
+                    segment.endDirection = direction
+                    segments[Pair(segment.start, segment.startDirection)] = segment
+                    // add the segment to the cursor
+                    cursor.segments.add(segment)
+                    // reset the cursor
+                    cursor.path = mutableListOf()
+                    // when the segment was not one-way, process the inverse of this segment
+                    if (!segment.oneway) {
+                        val inverseSegment = segment.inverse()
+                        segments[Pair(inverseSegment.start, inverseSegment.startDirection)] = inverseSegment
+                    }
+
+                    val cursors = validNeighbours.map {
+                        // do we have segment data for this node which we can use?
+                        if (segments.containsKey(Pair(cursor.currentCoordinate, it.key))) {
+                            val segment = segments[(Pair(cursor.currentCoordinate, it.key))]!!
+                            println("$prefix going ${it.key} | use segment data for ${cursor.currentCoordinate} to jump to ${segment.end}")
+                            // add the segment to the cursor
+                            cursor.segments.add(segment)
+                            // jump to segment end
+                            //jumpTo(cursor.clone(), segment.end!!, it.key, segment, grid, segments, depth+1)
+                            queue.add(Command(cursor.clone(), segment.end!!, it.key, segment, grid, segments, queue, depth+1))
+                        } else {
+                            println("$prefix going ${it.key} | simply move to ${it.value}")
+//                            move(cursor.clone(), it.key, Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.'), grid, segments, depth+1)
+                            val clonedCursor = cursor.clone()
+                            queue.add(Command(clonedCursor, it.value, it.key, Segment(cursor.currentCoordinate, it.key, cursor.getValue() != '.'), grid, segments, queue, depth+1))
+                        }
+                    }
+//                    return cursors.filterNotNull().maxByOrNull { it.length() }
+                    return false
+                } else if (validNeighbours.size == 1) {
+                    if (cursor.getValue() != '.') {
+                        segment.oneway = true
+                    }
+                    segment.coordinates.add(cursor.currentCoordinate)
+                    segment.length++
+                    return move(cursor, validNeighbours.keys.first(), segment, grid, segments, queue, depth)
+                } else {
+                    // we've reached a dead end
+                    println("$prefix hit dead end at ${cursor.currentCoordinate}")
+                }
+            } else {
+                // we were here before, via a longer path, so no need to further explore our current path
+            }
+            return false
+        }
+
+        fun validNeighbours (cursor: HikeCursor, grid: Grid2D<Char>) : Map<Direction, Coordinate> {
+            return cursor.getNeighbours().filter {
+                        // do not revisit a tile we've visited before with this cursor
+                        cursor.path.none { visCoord -> visCoord.coordinate == it.value } &&
+                        cursor.segments.none { seg -> !seg.coordinates.none { coord -> coord == it.value } } &&
+                        // do not visit a tile which represents forest
+                        grid.getValue(it.value) != '#' &&
+                        // adhere to the forced directions
+                         ((grid.getValue(cursor.currentCoordinate) == '>' && it.key == Direction.EAST) ||
+                                 (grid.getValue(cursor.currentCoordinate) == 'v' && it.key == Direction.SOUTH) ||
+                                 (grid.getValue(cursor.currentCoordinate) == '<' && it.key == Direction.WEST) ||
+                                 (grid.getValue(cursor.currentCoordinate) == '^' && it.key == Direction.NORTH) ||
+                                 grid.getValue(cursor.currentCoordinate) == '.')
+            }
+        }
+        fun printGrid(grid:Grid2D<Char>, cursor:HikeCursor?) {
+                val indexBase = grid.indexBase
+                val gridValues = grid.gridValues
+                val visitedCoordinates = grid.visitedCoordinates
                 // column index line
                 print("    ")
                 (0+indexBase..gridValues[0].size-1+indexBase).forEach {  print(it.absoluteValue.toString().padStart(2, ' ') + " ") }
@@ -229,6 +245,24 @@ class Segment(
                 this.length)
 
     }
+}
+
+class Command(val cursor: HikeCursor,
+              val newCoordinate:Coordinate,
+              val direction: Direction,
+              val segment:Segment,
+              val grid:Grid2D<Char>,
+              val segments:MutableMap<Pair<Coordinate, Direction>, Segment>,
+              val queue:PriorityQueue<Command>,
+              val depth: Int = 1) : Comparable<Command>{
+    fun execute() : Boolean {
+        return jumpTo(cursor, newCoordinate, direction, segment, grid, segments, queue, depth)
+    }
+
+    override fun compareTo(other: Command): Int {
+        return this.cursor.segments.size.compareTo(other.cursor.segments.size)
+    }
+
 }
 
 
